@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
    //sn::corelib::SimpleRouteItem route("find user [--id=] [--firstName=] [--lastName=] [--email=] [--position=]");
-   sn::corelib::SimpleRouteItem route("[OPTION]");
+   sn::corelib::SimpleRouteItem route("( --something | --somethingElse | --anotherOne | -s | -a ):namedGroup");
    cout << "Hello World!" << endl;
    return 0;
 }
