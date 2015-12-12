@@ -7,7 +7,12 @@ using namespace std;
 int main()
 {
    //sn::corelib::SimpleRouteItem route("find user [--id=] [--firstName=] [--lastName=] [--email=] [--position=]");
-   sn::corelib::SimpleRouteItem route("( --something | --somethingElse | --anotherOne | -s | -a ):namedGroup");
+   sn::corelib::RouteMatcher route("asdasd --something=");
+   QStringList args{
+      "sdfasdfgsdjhfgsadjhfasdh",
+      "--something=aasdas"
+   };
+   route.match(args);
    cout << "Hello World!" << endl;
    return 0;
 }
