@@ -8,6 +8,18 @@ CloudControllerApplication
                             ])
    
    files:[
-      "main.cpp"
+      "application.cpp",
+      "application.h",
+      "command_runner.cpp",
+      "command_runner.h",
+      "main.cpp",
    ]
+   
+   Group {
+      name: "command"
+      prefix: name+"/"
+      files: [
+           "command_repo.h",
+       ]
+   }  
 }
