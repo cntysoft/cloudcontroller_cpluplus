@@ -18,6 +18,8 @@ using sn::corelib::CommandMeta;
 using sn::corelib::AbstractCommand;
 using sn::corelib::AbstractCommandRunner;
 
+using cloudcontroller::command::GlobalVersionCommand;
+
 
 CommandRunner::CommandRunner(Application &app)
    : BaseCommandRunner(app)
@@ -27,24 +29,25 @@ CommandRunner::CommandRunner(Application &app)
    addUsageText("--version  print main system version number\n");
    addUsageText("--help     print help document\n\n");
    initCommandPool();
+   initRouteItems();
 }
 
 void CommandRunner::initCommandPool()
 {
-//   m_cmdRegisterPool.insert("Global_Version", [](const AbstractCommandRunner& runner, const CommandMeta& meta)->AbstractCommand*{
-//                                                  GlobalVersionCommand* cmd = new GlobalVersionCommand(runner, meta);
-//                                                  return cmd;
-//                                               });
+   m_cmdRegisterPool.insert("Global_Version", [](const AbstractCommandRunner& runner, const CommandMeta& meta)->AbstractCommand*{
+                                                  GlobalVersionCommand* cmd = new GlobalVersionCommand(runner, meta);
+                                                  return cmd;
+                                               });
 }
 
 
 void CommandRunner::initRouteItems()
 {
-//   m_router.addRoute();
+   addCmdRoute("version", "--version", 1, {
+      {"category", "Global"},
+      {"name", "Version"}
+   });
 }
 
-void CommandRunner::run()
-{
-}
 
 }//metaserver

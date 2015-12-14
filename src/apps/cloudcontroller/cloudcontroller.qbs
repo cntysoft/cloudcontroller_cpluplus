@@ -20,6 +20,8 @@ CloudControllerApplication
       prefix: name+"/"
       files: [
            "command_repo.h",
+           "global_version_command.cpp",
+           "global_version_command.h",
        ]
    }  
 }
