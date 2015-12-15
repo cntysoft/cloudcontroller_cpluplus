@@ -1,5 +1,3 @@
-#include <QCommandLineParser>
-
 #include "command_runner.h"
 #include "application.h"
 #include "kernel/errorinfo.h"
@@ -34,8 +32,8 @@ CommandRunner::CommandRunner(Application &app)
 
 void CommandRunner::initCommandPool()
 {
-   m_cmdRegisterPool.insert("Global_Version", [](const AbstractCommandRunner& runner, const CommandMeta& meta)->AbstractCommand*{
-                                                  GlobalVersionCommand* cmd = new GlobalVersionCommand(runner, meta);
+   m_cmdRegisterPool.insert("Global_Version", [](AbstractCommandRunner& runner, const CommandMeta& meta)->AbstractCommand*{
+                                                  GlobalVersionCommand* cmd = new GlobalVersionCommand(dynamic_cast<CommandRunner&>(runner), meta);
                                                   return cmd;
                                                });
 }

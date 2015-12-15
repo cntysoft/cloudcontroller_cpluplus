@@ -8,7 +8,7 @@ namespace command
 
 using sn::corelib::TerminalColor;
 
-GlobalVersionCommand::GlobalVersionCommand(const AbstractCommandRunner &runner, const CommandMeta &invokeMeta)
+GlobalVersionCommand::GlobalVersionCommand(CommandRunner &runner, const CommandMeta &invokeMeta)
    : AbstractCommand(runner, invokeMeta)
 {   
 }
