@@ -20,8 +20,25 @@ CloudControllerApplication
       prefix: name+"/"
       files: [
            "command_repo.h",
+           "global_shell_command.cpp",
+           "global_shell_command.h",
            "global_version_command.cpp",
            "global_version_command.h",
        ]
-   }  
+   }
+   
+   Group {
+      name: "shell"
+      prefix: name+"/"
+      files:[
+           "task_loop.cpp",
+           "task_loop.h",
+       ]
+   }
+   
+   Group {
+      name: "task"
+      prefix: name+"/"
+      files:[]
+   }
 }

@@ -8,7 +8,6 @@ namespace cloudcontroller {
 namespace command{
 
 using sn::corelib::AbstractCommand;
-using sn::corelib::AbstractCommandRunner;
 using sn::corelib::CommandMeta;
 
 using cloudcontroller::CommandRunner;
