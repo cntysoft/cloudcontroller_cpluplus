@@ -105,6 +105,7 @@ LABEL_AGAIN:
          if(keyType == SpecialKeyName::ASCII_CODE && unit == "\n"){
             command = m_cmd_buff.trimmed();
             m_cmd_buff.clear();
+            m_insertPos = 0;
             std::cout << "\n";
             return;
          }
@@ -115,6 +116,7 @@ LABEL_AGAIN:
 
 void TaskLoop::readUnitCycle(QByteArray &unit, SpecialKeyName keyType)
 {
+   
    switch(keyType){
    case SpecialKeyName::ARROW_LEFT:
    case SpecialKeyName::ARROW_RIGHT:
@@ -136,56 +138,39 @@ void TaskLoop::readUnitCycle(QByteArray &unit, SpecialKeyName keyType)
    }
 }
 
-void TaskLoop::arrowCommand(QByteArray& unit, SpecialKeyName keyType)
+void TaskLoop::arrowCommand(QByteArray&, SpecialKeyName keyType)
 {
-   QPair<int, int> curPos = 
+   QPair<int, int> curPos = getCursorPos();
    if(keyType == SpecialKeyName::ARROW_LEFT){
-      
+      if(((curPos.second * m_windowWidth + curPos.first) - 1) >= (m_cycleBeginY * m_windowWidth + m_cycleBeginX)){
+         Terminal::backwardCursor();
+         m_insertPos--;
+      }
    }else if(keyType == SpecialKeyName::ARROW_RIGHT){
-      if(m_cursorX < m_ps.size()+m_cmd_buff.size() + 1){
-         m_cursorX++;
+      QPair<int, int> endPos = getCycleEndCursorPos();
+      if(((curPos.second * m_windowWidth + curPos.first)) <= (endPos.second * m_windowWidth + endPos.first)){
+         Terminal::forwardCursor();
+         m_insertPos++;
       }
    }
-   Terminal::setCursorPos(m_cursorX, m_cursorY);
 }
 
 void TaskLoop::asciiCommand(QByteArray &unit, SpecialKeyName)
 {
-//   if(unit != "\n"){
-//      m_cmd_buff.insert(calculateInsertPos(), QString(unit));
-//      m_cursorX += unit.size();
-//      Terminal::forwardCursor(unit.size());
-//      if(m_cursorX > m_windowWidth){
-//         m_cursorY++;
-//         m_cursorX = m_cursorX % m_windowWidth;
-//         refreshLine(true);
-//         return;
-//      }
-//   }
-//   refreshLine();
+   if(unit != "\n"){
+      m_cmd_buff.insert(m_insertPos, QString(unit));
+      m_insertPos += unit.size();
+      Terminal::forwardCursor(unit.size());
+      refreshLine();
+   }
 }
 
-void TaskLoop::refreshLine(bool newLine)
+void TaskLoop::refreshLine()
 {
-//   if(!newLine){
-//      std::cout << "\x1b[2K" << std::flush;
-//      Terminal::setCursorPos(0, m_cursorY);
-//      Terminal::writeText(m_ps.toLocal8Bit(), TerminalColor::LightBlue);
-//      std::cout << m_cmd_buff.toStdString() << std::flush;
-//      Terminal::setCursorPos(m_cursorX, m_cursorY);
-//   }else{
-//      Terminal::setCursorPos(0, m_cursorY - 1);
-//      std::cout << "\x1b[2K" << std::flush;
-//      Terminal::writeText(m_ps.toLocal8Bit(), TerminalColor::LightBlue);
-//      std::cout << m_cmd_buff.toStdString() << std::flush;
-//      Terminal::setCursorPos(m_cursorX, m_cursorY);
-//      updateCursorData();
-//   }
-}
-
-int TaskLoop::calculateInsertPos()
-{
-   return m_cycleBeginX - (m_ps.size()+1);
+   Terminal::setCursorPos(m_cycleBeginX, m_cycleBeginY);
+   std::cout << "\x1b[J";
+   std::cout << m_cmd_buff.toStdString() << std::flush;
+   Terminal::setCursorPos((m_ps.size() + m_insertPos) % m_windowWidth + 1, m_cycleBeginY + (m_insertPos + m_ps.size()) / m_windowWidth);
 }
 
 TaskLoop::SpecialKeyName TaskLoop::getKeyTypeName(QByteArray& unit)
@@ -224,6 +209,14 @@ void TaskLoop::saveCycleBeginCursorPos()
    QPair<int, int> pair = getCursorPos();
    m_cycleBeginX = pair.first;
    m_cycleBeginY = pair.second;
+}
+
+QPair<int, int> TaskLoop::getCycleEndCursorPos()
+{
+   int bufSize = m_cmd_buff.size();
+   int deltaY = bufSize / m_windowWidth;
+   int deltaX = (bufSize % m_windowWidth) + m_ps.size();
+   return QPair<int, int>(deltaX, m_cycleBeginY + deltaY);
 }
 
 TaskLoop::~TaskLoop()

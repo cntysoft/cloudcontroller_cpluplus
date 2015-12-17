@@ -42,10 +42,10 @@ protected:
 protected:
    void arrowCommand(QByteArray& unit, SpecialKeyName keyType);
    void asciiCommand(QByteArray& unit, SpecialKeyName keyType);
-   void refreshLine(bool newLine = false);
-   int calculateInsertPos();
+   void refreshLine();
    QPair<int, int> getCursorPos();
    void saveCycleBeginCursorPos();
+   QPair<int, int> getCycleEndCursorPos();
 protected:
    struct termios m_savedTerminalAttr;
    QString m_cmd_buff;
