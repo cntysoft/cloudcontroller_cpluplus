@@ -2,8 +2,8 @@
 #define CLOUD_CONTROLLER_SHELL_TASK_LOOP_H
 
 #include <QMap>
-#include <QByteArray>
 #include <QPair>
+#include <QString>
 
 #include <termios.h>
 #include <unistd.h>
@@ -13,6 +13,7 @@
 
 QT_BEGIN_NAMESPACE
 class QString;
+class QChar;
 QT_END_NAMESPACE
 
 namespace cloudcontroller{
@@ -28,7 +29,7 @@ public:
       ASCII_CODE,
       UNKNOW
    };
-
+   
 public:
    TaskLoop();
    void run();
@@ -37,19 +38,32 @@ public:
 protected:
    void setupTerminalAttr();
    void readCommand(QString& command);
-   void readUnitCycle(QByteArray& unit, SpecialKeyName keyType);
-   SpecialKeyName getKeyTypeName(QByteArray& unit);
+   void readUnitCycle(QString& unit, SpecialKeyName keyType);
+   SpecialKeyName getKeyTypeName(QString& unit);
 protected:
-   void arrowCommand(QByteArray& unit, SpecialKeyName keyType);
-   void asciiCommand(QByteArray& unit, SpecialKeyName keyType);
+   void arrowCommand(QString& unit, SpecialKeyName keyType);
+   void asciiCommand(QString& unit, SpecialKeyName keyType);
+   void delKeyCommand(QString& unit, SpecialKeyName keyType);
+   void moveToBeginCommand(QString& unit, SpecialKeyName keyType);
+   void moveToEndCommand(QString& unit, SpecialKeyName keyType);
+protected:
+   void removeCharAtCurrentCursorAction();
+   QPair<int, int> getPrevCursorPosByInsertPointer();
+   QPair<int, int> getNextCursorPosByInsertPointer();
    void refreshLine();
    QPair<int, int> getCursorPos();
    void saveCycleBeginCursorPos();
    QPair<int, int> getCycleEndCursorPos();
+   QPair<int, int> calculateCursorPosByInsertPointer();
+   void filterBuffer(char* buffer, QString& ret);
+   bool isMultiByteChar(const QChar& unicode);
+   int calculateCursorStep(const QString& unit);
+   int calculateCursorStep(const QString &unit, int end);
+   
 protected:
    struct termios m_savedTerminalAttr;
    QString m_cmd_buff;
-   static QMap<QByteArray, SpecialKeyName> m_specialKeyMap;
+   static QMap<QString, SpecialKeyName> m_specialKeyMap;
    QString m_ps = "cloudcontroller >> ";
    
    int m_insertPos = 0;
@@ -59,6 +73,8 @@ protected:
    
    int m_windowWidth;
    int m_windowHeight;
+   
+   int m_ps_length;
 };
 
 }//shell
