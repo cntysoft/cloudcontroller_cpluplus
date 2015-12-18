@@ -48,8 +48,6 @@ protected:
    void moveToEndCommand(QString& unit, SpecialKeyName keyType);
 protected:
    void removeCharAtCurrentCursorAction();
-   QPair<int, int> getPrevCursorPosByInsertPointer();
-   QPair<int, int> getNextCursorPosByInsertPointer();
    void refreshLine();
    QPair<int, int> getCursorPos();
    void saveCycleBeginCursorPos();
@@ -57,6 +55,7 @@ protected:
    QPair<int, int> calculateCursorPosByInsertPointer();
    void filterBuffer(char* buffer, QString& ret);
    bool isMultiByteChar(const QChar& unicode);
+   int getSpaceCountForChar(const QChar& unicode);
    int calculateCursorStep(const QString& unit);
    int calculateCursorStep(const QString &unit, int end);
    

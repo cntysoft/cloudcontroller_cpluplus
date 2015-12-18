@@ -178,33 +178,15 @@ void TaskLoop::readUnitCycle(QString &unit, SpecialKeyName keyType)
 
 void TaskLoop::arrowCommand(QString&, SpecialKeyName keyType)
 {
-   QPair<int, int> curPos = getCursorPos();
-   
    if(keyType == SpecialKeyName::ARROW_LEFT){
-      int step = 1;
       if(m_insertPos > 0){
-         QChar curChar = m_cmd_buff[m_insertPos - 1];
-         if(isMultiByteChar(curChar)){
-            step = 2;
-         }
-      }
-      //      QPair<int, int> prevPos = getPrevCursorPos(step);
-      QPair<int, int> prevPos = getPrevCursorPosByInsertPointer();
-      if(curPos != prevPos){
-         Terminal::setCursorPos(prevPos.first, prevPos.second);
          m_insertPos--;
+         refreshLine();
       }
    }else if(keyType == SpecialKeyName::ARROW_RIGHT){
-      int step = 1;
-      int targetPos = qMax(0, qMin(m_insertPos + 1, m_cmd_buff.size() - 1));
-      QChar curChar = m_cmd_buff[targetPos];
-      if(isMultiByteChar(curChar)){
-         step = 2;
-      }
-      QPair<int, int> nextPos = getNextCursorPosByInsertPointer();
-      if(curPos != nextPos){
-         Terminal::setCursorPos(nextPos.first, nextPos.second);
+      if(m_insertPos < m_cmd_buff.size()){
          m_insertPos++;
+         refreshLine();
       }
    }
 }
@@ -233,11 +215,8 @@ void TaskLoop::moveToBeginCommand(QString&, SpecialKeyName)
 
 void TaskLoop::moveToEndCommand(QString&, SpecialKeyName)
 {
-   int bufSize = m_cmd_buff.size();
-   int targetX = (m_cycleBeginX + bufSize) % m_windowWidth;
-   int targetY = m_cycleBeginY + (m_cycleBeginX + bufSize) / m_windowWidth;
-   Terminal::setCursorPos(targetX, targetY);
-   m_insertPos = bufSize;
+   m_insertPos = m_cmd_buff.size();
+   refreshLine();
 }
 
 void TaskLoop::refreshLine()
@@ -251,40 +230,37 @@ void TaskLoop::refreshLine()
 
 QPair<int, int> TaskLoop::calculateCursorPosByInsertPointer()
 {
-   int cycleTotalSize = 0;
-   
    int winWidth = m_windowWidth;
    QString buf(m_ps + m_cmd_buff);
    int totalBufSize = buf.size();
-   int hits = 0;
    int x;
-   int y;
+   int y = m_cycleBeginY;
+   int cycleRoom = winWidth;
+   int hits = 0;
    for(int i = 0; i < totalBufSize; i++){
-      int curSize;
-      if(isMultiByteChar(buf[i])){
-         curSize = 2;
+      int space = getSpaceCountForChar(buf[i]);
+      if(cycleRoom >= space){
+         cycleRoom-= space;
       }else{
-         curSize = 1;
-      }
-      if(winWidth - cycleTotalSize == 1){
-         //这个是否特别判断
-         if(2 == curSize){
+         if(cycleRoom == 0){
+            cycleRoom = winWidth - space;
+         }
+         if(cycleRoom == 1){
+            cycleRoom = winWidth - 2;
             hits++;
          }
-         cycleTotalSize = 2;
-         continue;
-      }else if(winWidth == cycleTotalSize){
-         //恰好相等
-         cycleTotalSize = 0;
-         continue;
       }
-      cycleTotalSize += curSize;
    }
    int totalSize = m_ps_length + calculateCursorStep(m_cmd_buff, m_insertPos);
-   x = totalSize % winWidth  + hits;
-   y = m_cycleBeginY + totalSize / winWidth;
-   //m_insertPos += qMax(0, hits - 1);
-   qDebug() << hits;
+   if(hits > 0){
+      x = (totalSize + hits)% winWidth + 1;
+      y = m_cycleBeginY + (totalSize + hits) / winWidth;
+   }else{
+      x = totalSize % winWidth + 1;
+      y = m_cycleBeginY + totalSize / winWidth;
+   }
+   
+   
    return QPair<int, int>(x, y);
    
 }
@@ -305,9 +281,7 @@ TaskLoop::SpecialKeyName TaskLoop::getKeyTypeName(QString& unit)
 
 void TaskLoop::removeCharAtCurrentCursorAction()
 {
-   QPair<int, int> curPos = getCursorPos();
-   QPair<int, int> prevPos = getPrevCursorPosByInsertPointer();
-   if(curPos != prevPos){
+   if(m_insertPos > 0){
       m_insertPos--;
       m_cmd_buff.remove(m_insertPos, 1);
       refreshLine();
@@ -348,6 +322,14 @@ bool TaskLoop::isMultiByteChar(const QChar& unicode)
    return false;
 }
 
+int TaskLoop::getSpaceCountForChar(const QChar& unicode)
+{
+   if(isMultiByteChar(unicode)){
+      return 2;
+   }
+   return 1;
+}
+
 QPair<int, int> TaskLoop::getCursorPos()
 {
    char buf[32] = "\033[6n";
@@ -370,44 +352,6 @@ void TaskLoop::saveCycleBeginCursorPos()
    QPair<int, int> pair = getCursorPos();
    m_cycleBeginX = pair.first;
    m_cycleBeginY = pair.second;
-}
-
-
-
-QPair<int, int> TaskLoop::getPrevCursorPosByInsertPointer()
-{
-   QPair<int, int> pos;
-   int pointer = m_insertPos;
-   if(pointer == 0){
-      pos.first = m_cycleBeginX;
-      pos.second = m_cycleBeginY;
-   }else{
-      pointer--;
-      int totalWidth = m_ps_length + calculateCursorStep(m_cmd_buff, pointer);
-      int x = totalWidth % m_windowWidth + 1;
-      int y = (totalWidth / m_windowWidth) + m_cycleBeginY;
-      pos.first = x;
-      pos.second = y;
-   }
-   return pos;
-}
-
-QPair<int, int> TaskLoop::getNextCursorPosByInsertPointer()
-{
-   QPair<int, int> pos;
-   int pointer = m_insertPos;
-   int stop;
-   if(pointer == m_cmd_buff.size()){
-      stop = pointer;
-   }else{
-      stop = pointer + 1;
-   }
-   int totalWidth = m_ps_length + calculateCursorStep(m_cmd_buff, stop);
-   int x = totalWidth % m_windowWidth + 1;
-   int y = (totalWidth / m_windowWidth) + m_cycleBeginY;
-   pos.first = x;
-   pos.second = y;
-   return pos;
 }
 
 QPair<int, int> TaskLoop::getCycleEndCursorPos()
