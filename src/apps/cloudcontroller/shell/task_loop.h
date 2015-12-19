@@ -48,10 +48,11 @@ protected:
    void moveToEndCommand(QString& unit, SpecialKeyName keyType);
 protected:
    void removeCharAtCurrentCursorAction();
-   void refreshLine();
+   void refreshLine(int startPointer);
    QPair<int, int> getCursorPos();
    void saveCycleBeginCursorPos();
    QPair<int, int> getCycleEndCursorPos();
+   QPair<int, int> calculateCursorPosByInsertPointer(int insertPointer);
    QPair<int, int> calculateCursorPosByInsertPointer();
    void filterBuffer(char* buffer, QString& ret);
    bool isMultiByteChar(const QChar& unicode);
@@ -61,7 +62,7 @@ protected:
    
 protected:
    struct termios m_savedTerminalAttr;
-   QString m_cmd_buff;
+   QString m_cmdBuff;
    static QMap<QString, SpecialKeyName> m_specialKeyMap;
    QString m_ps = "cloudcontroller >> ";
    
@@ -73,7 +74,7 @@ protected:
    int m_windowWidth;
    int m_windowHeight;
    
-   int m_ps_length;
+   int m_psLength;
 };
 
 }//shell

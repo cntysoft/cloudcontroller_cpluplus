@@ -36,7 +36,7 @@ TaskLoop::TaskLoop()
    m_windowWidth = winSize.first;
    m_windowHeight = winSize.second;
    setupTerminalAttr();
-   m_ps_length = calculateCursorStep(m_ps);
+   m_psLength = calculateCursorStep(m_ps);
 }
 
 void TaskLoop::setupTerminalAttr()
@@ -71,7 +71,7 @@ void TaskLoop::updateTerminalWindowSize(int width, int height)
 {
    m_windowWidth = width;
    m_windowHeight = height;
-   //   refreshLine();
+   refreshLine(0);
 }
 
 void TaskLoop::readCommand(QString &command)
@@ -100,8 +100,8 @@ LABEL_AGAIN:
             SpecialKeyName keyType = getKeyTypeName(unit);
             readUnitCycle(unit, keyType);
             if(keyType == SpecialKeyName::ASCII_CODE && unit == "\n"){
-               command = m_cmd_buff.trimmed();
-               m_cmd_buff.clear();
+               command = m_cmdBuff.trimmed();
+               m_cmdBuff.clear();
                m_insertPos = 0;
                std::cout << "\n";
                return;
@@ -181,12 +181,14 @@ void TaskLoop::arrowCommand(QString&, SpecialKeyName keyType)
    if(keyType == SpecialKeyName::ARROW_LEFT){
       if(m_insertPos > 0){
          m_insertPos--;
-         refreshLine();
+         QPair<int, int> targetPos = calculateCursorPosByInsertPointer(m_insertPos);
+         Terminal::setCursorPos(targetPos.first, targetPos.second);
       }
    }else if(keyType == SpecialKeyName::ARROW_RIGHT){
-      if(m_insertPos < m_cmd_buff.size()){
+      if(m_insertPos < m_cmdBuff.size()){
          m_insertPos++;
-         refreshLine();
+         QPair<int, int> targetPos = calculateCursorPosByInsertPointer(m_insertPos);
+         Terminal::setCursorPos(targetPos.first, targetPos.second);
       }
    }
 }
@@ -196,9 +198,9 @@ void TaskLoop::asciiCommand(QString &unit, SpecialKeyName)
    if(unit == "\177"){
       removeCharAtCurrentCursorAction();
    }else if(unit != "\n"){
-      m_cmd_buff.insert(m_insertPos, unit);
+      m_cmdBuff.insert(m_insertPos, unit);
       m_insertPos += unit.size();
-      refreshLine();
+      refreshLine(m_insertPos - unit.size());
    }
 }
 
@@ -215,23 +217,34 @@ void TaskLoop::moveToBeginCommand(QString&, SpecialKeyName)
 
 void TaskLoop::moveToEndCommand(QString&, SpecialKeyName)
 {
-   m_insertPos = m_cmd_buff.size();
-   refreshLine();
+   m_insertPos = m_cmdBuff.size();
+   QPair<int, int> targetPos = calculateCursorPosByInsertPointer();
+   Terminal::setCursorPos(targetPos.first, targetPos.second);
 }
 
-void TaskLoop::refreshLine()
+
+void TaskLoop::refreshLine(int startPointer)
 {
-   Terminal::setCursorPos(m_cycleBeginX, m_cycleBeginY);
-   std::cout << "\x1b[J";
-   std::cout << m_cmd_buff.toStdString() << std::flush;
-   QPair<int, int> targetCursorPos = calculateCursorPosByInsertPointer();
-   Terminal::setCursorPos(targetCursorPos.first, targetCursorPos.second);
+      int bufSize = m_cmdBuff.size();
+      Q_ASSERT_X(startPointer >= 0 && startPointer <= bufSize, "TaskLoop::refreshLine", "startPointer out of range");
+      QPair<int, int> startCleanPointer = calculateCursorPosByInsertPointer(startPointer);
+      Terminal::setCursorPos(startCleanPointer.first, startCleanPointer.second);
+      std::cout << "\x1b[J";
+      std::cout << m_cmdBuff.mid(startPointer, bufSize - startPointer).toStdString() << std::flush;
+      QPair<int, int> targetCursorPos = calculateCursorPosByInsertPointer();
+      Terminal::setCursorPos(targetCursorPos.first, targetCursorPos.second);
 }
+
 
 QPair<int, int> TaskLoop::calculateCursorPosByInsertPointer()
 {
+   return calculateCursorPosByInsertPointer(m_insertPos);
+}
+
+QPair<int, int> TaskLoop::calculateCursorPosByInsertPointer(int insertPointer)
+{
    int winWidth = m_windowWidth;
-   QString buf(m_ps + m_cmd_buff);
+   QString buf(m_ps + m_cmdBuff);
    int totalBufSize = buf.size();
    int x;
    int y = m_cycleBeginY;
@@ -251,7 +264,7 @@ QPair<int, int> TaskLoop::calculateCursorPosByInsertPointer()
          }
       }
    }
-   int totalSize = m_ps_length + calculateCursorStep(m_cmd_buff, m_insertPos);
+   int totalSize = m_psLength + calculateCursorStep(m_cmdBuff, insertPointer);
    if(hits > 0){
       x = (totalSize + hits)% winWidth + 1;
       y = m_cycleBeginY + (totalSize + hits) / winWidth;
@@ -259,10 +272,7 @@ QPair<int, int> TaskLoop::calculateCursorPosByInsertPointer()
       x = totalSize % winWidth + 1;
       y = m_cycleBeginY + totalSize / winWidth;
    }
-   
-   
    return QPair<int, int>(x, y);
-   
 }
 
 TaskLoop::SpecialKeyName TaskLoop::getKeyTypeName(QString& unit)
@@ -283,8 +293,8 @@ void TaskLoop::removeCharAtCurrentCursorAction()
 {
    if(m_insertPos > 0){
       m_insertPos--;
-      m_cmd_buff.remove(m_insertPos, 1);
-      refreshLine();
+      m_cmdBuff.remove(m_insertPos, 1);
+      refreshLine(m_insertPos);
    }
 }
 
@@ -357,7 +367,7 @@ void TaskLoop::saveCycleBeginCursorPos()
 QPair<int, int> TaskLoop::getCycleEndCursorPos()
 {
    int psSize = calculateCursorStep(m_ps);
-   int bufSize = calculateCursorStep(m_cmd_buff);
+   int bufSize = calculateCursorStep(m_cmdBuff);
    int deltaY = (psSize + bufSize) / m_windowWidth;
    int deltaX = ((bufSize + psSize) % m_windowWidth) + 1;
    return QPair<int, int>(deltaX, m_cycleBeginY + deltaY);
