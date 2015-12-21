@@ -19,6 +19,9 @@
 #include "io/terminal.h"
 #include "kernel/errorinfo.h"
 
+#include "container/global.h"
+#include "abstract_task_container.h"
+
 namespace cloudcontroller{
 namespace shell{
 
@@ -26,17 +29,35 @@ using sn::corelib::Terminal;
 using sn::corelib::TerminalColor;
 using sn::corelib::ErrorInfo;
 
+using GlobalContainer = cloudcontroller::container::Global;
+
 const int ASCII_NUL = 0;
 const int ASCII_ESC = 27;
 const int UNICODE_RANGE_START = 0x4E00;
 const int UNICODE_RANGE_END = 0x9FA5;
+
 TaskLoop::TaskLoop()
 {
    QPair<int, int> winSize = Terminal::getWindowSize();
    m_windowWidth = winSize.first;
    m_windowHeight = winSize.second;
    setupTerminalAttr();
+   initCommandContainer();
+}
+
+TaskLoop& TaskLoop::setConsolePsText(const QString &psText)
+{
+   m_ps = psText;
    m_psLength = calculateCursorStep(m_ps);
+   if(!m_cmdBuff.isEmpty()){
+      refreshLine(0);
+   }
+   return *this;
+}
+
+const QString& TaskLoop::getConsolePsText()
+{
+   return m_ps;
 }
 
 void TaskLoop::setupTerminalAttr()
@@ -50,22 +71,58 @@ void TaskLoop::setupTerminalAttr()
    terminalAttr.c_cc[VTIME] = 0;
    int status = tcsetattr(STDIN_FILENO, TCSANOW, &terminalAttr);
    Q_ASSERT_X(status == 0, "TaskLoop::setupTerminalAttr()", "tcsetattr error");
-   
+}
+
+AbstractTaskContainer& TaskLoop::getCurrentTaskContainer()
+{
+   return *m_currentTaskContainer;
+}
+
+TaskLoop& TaskLoop::enterGlobalTaskContainer()
+{
+   enterTaskContainer("Global");
+   return *this;
+}
+
+TaskLoop& TaskLoop::enterTaskContainer(const QString& name)
+{
+   if(m_currentTaskContainer->getName() == "Global"){
+      if(m_taskContainerPool.contains(name)){
+         m_currentTaskContainer = m_taskContainerPool.value(name);
+         m_currentTaskContainer->loadHandler();
+      }
+   }
+   return *this;
 }
 
 void TaskLoop::run()
 {
    QString command;
    Terminal::writeText("welcome to use cloud controller system\n", TerminalColor::Cyan);
-   Terminal::writeText(m_ps.toLocal8Bit(), TerminalColor::LightBlue);
-   saveCycleBeginCursorPos();
-   readCommand(command);
-   while(command != "quit"){
+   enterGlobalTaskContainer();
+   while(true){
       Terminal::writeText(m_ps.toLocal8Bit(), TerminalColor::LightBlue);
       saveCycleBeginCursorPos();
       readCommand(command);
+      runCommand(command);
    }
 }
+
+void TaskLoop::runCommand(const QString &command)
+{
+   try{
+      m_currentTaskContainer->run(command);
+   }catch(ErrorInfo errorInfo){
+      Terminal::writeText(errorInfo.toString().toLocal8Bit(), TerminalColor::Red);
+   }
+}
+
+void TaskLoop::initCommandContainer()
+{
+   m_taskContainerPool.insert("Global", new GlobalContainer(*this));
+   m_currentTaskContainer = m_taskContainerPool.value("Global");
+}
+
 
 void TaskLoop::updateTerminalWindowSize(int width, int height)
 {
@@ -139,7 +196,6 @@ void TaskLoop::filterBuffer(char* buffer, QString &ret)
 
 void TaskLoop::readUnitCycle(QString &unit, SpecialKeyName keyType)
 {
-   
    switch(keyType){
    case SpecialKeyName::ARROW_LEFT:
    case SpecialKeyName::ARROW_RIGHT:
@@ -225,14 +281,14 @@ void TaskLoop::moveToEndCommand(QString&, SpecialKeyName)
 
 void TaskLoop::refreshLine(int startPointer)
 {
-      int bufSize = m_cmdBuff.size();
-      Q_ASSERT_X(startPointer >= 0 && startPointer <= bufSize, "TaskLoop::refreshLine", "startPointer out of range");
-      QPair<int, int> startCleanPointer = calculateCursorPosByInsertPointer(startPointer);
-      Terminal::setCursorPos(startCleanPointer.first, startCleanPointer.second);
-      std::cout << "\x1b[J";
-      std::cout << m_cmdBuff.mid(startPointer, bufSize - startPointer).toStdString() << std::flush;
-      QPair<int, int> targetCursorPos = calculateCursorPosByInsertPointer();
-      Terminal::setCursorPos(targetCursorPos.first, targetCursorPos.second);
+   int bufSize = m_cmdBuff.size();
+   Q_ASSERT_X(startPointer >= 0 && startPointer <= bufSize, "TaskLoop::refreshLine", "startPointer out of range");
+   QPair<int, int> startCleanPointer = calculateCursorPosByInsertPointer(startPointer);
+   Terminal::setCursorPos(startCleanPointer.first, startCleanPointer.second);
+   std::cout << "\x1b[J";
+   std::cout << m_cmdBuff.mid(startPointer, bufSize - startPointer).toStdString() << std::flush;
+   QPair<int, int> targetCursorPos = calculateCursorPosByInsertPointer();
+   Terminal::setCursorPos(targetCursorPos.first, targetCursorPos.second);
 }
 
 

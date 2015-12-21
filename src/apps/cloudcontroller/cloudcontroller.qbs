@@ -31,8 +31,14 @@ CloudControllerApplication
       name: "shell"
       prefix: name+"/"
       files:[
+           "abstract_task.cpp",
+           "abstract_task.h",
+           "abstract_task_container.cpp",
+           "abstract_task_container.h",
            "task_loop.cpp",
            "task_loop.h",
+           "task_meta.cpp",
+           "task_meta.h",
        ]
    }
    
@@ -40,5 +46,14 @@ CloudControllerApplication
       name: "task"
       prefix: name+"/"
       files:[]
+   }
+   
+   Group{
+      name: "container"
+      prefix: name+"/"
+      files:[
+           "global.cpp",
+           "global.h",
+       ]
    }
 }
