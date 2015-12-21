@@ -29,6 +29,7 @@ public:
    void printUsage()const;
    const QString& getName();
    void run(const QString& command);
+   TaskLoop& getTaskLoop();
 public:
    virtual void runTask(const TaskMeta& meta);
    virtual void loadHandler();

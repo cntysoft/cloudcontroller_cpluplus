@@ -29,6 +29,11 @@ const QString& AbstractTaskContainer::getName()
    return m_name;
 }
 
+TaskLoop& AbstractTaskContainer::getTaskLoop()
+{
+   return m_taskLoop;
+}
+
 void AbstractTaskContainer::run(const QString& command)
 {
    TaskMeta meta;

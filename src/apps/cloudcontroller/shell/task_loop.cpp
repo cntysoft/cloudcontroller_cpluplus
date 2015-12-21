@@ -18,6 +18,7 @@
 #include "kernel/errorinfo.h"
 
 #include "container/global.h"
+#include "container/metaserver.h"
 #include "abstract_task_container.h"
 
 namespace cloudcontroller{
@@ -28,6 +29,7 @@ using sn::corelib::TerminalColor;
 using sn::corelib::ErrorInfo;
 
 using GlobalContainer = cloudcontroller::container::Global;
+using MetaServerContainer = cloudcontroller::container::MetaServer;
 
 const int ASCII_NUL = 0;
 const int ASCII_ESC = 27;
@@ -96,7 +98,9 @@ TaskLoop& TaskLoop::enterGlobalTaskContainer()
 
 TaskLoop& TaskLoop::enterTaskContainer(const QString& name)
 {
-   if(m_currentTaskContainer == nullptr || m_currentTaskContainer->getName() == "Global"){
+   if(m_currentTaskContainer == nullptr || 
+         (m_currentTaskContainer->getName() == "Global" && name != "Global")||
+         (m_currentTaskContainer->getName() != "Global" && name == "Global")){
       if(m_taskContainerPool.contains(name)){
          m_currentTaskContainer = m_taskContainerPool.value(name);
          m_currentTaskContainer->loadHandler();
@@ -133,6 +137,7 @@ void TaskLoop::runCommand(const QString &command)
 void TaskLoop::initCommandContainer()
 {
    m_taskContainerPool.insert("Global", new GlobalContainer(*this));
+   m_taskContainerPool.insert("MetaServer", new MetaServerContainer(*this));
 }
 
 

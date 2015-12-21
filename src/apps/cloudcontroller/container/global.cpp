@@ -3,8 +3,10 @@
 #include "global.h"
 #include "io/terminal.h"
 #include "shell/task_meta.h"
-
+#include "shell/abstract_task.h"
+#include "shell/task_meta.h"
 #include "global/common_funcs.h"
+#include "task/global/metaserver.h"
 
 namespace cloudcontroller{
 namespace container{
@@ -12,7 +14,10 @@ namespace container{
 using sn::corelib::Terminal;
 using sn::corelib::TerminalColor;
 using cloudcontroller::shell::TaskMeta;
+using cloudcontroller::shell::AbstractTask;
 using sn::corelib::get_core_application_ref;
+
+using MetaServerTask = cloudcontroller::task::global::MetaServer;
 
 Global::Global(shell::TaskLoop &loop)
    : AbstractTaskContainer("Global", loop)
@@ -20,16 +25,16 @@ Global::Global(shell::TaskLoop &loop)
    m_containerPs = "cloudcontroller >> ";
    initUsage();
    initRouter();
+   initTaskPool();
 }
-
 
 void Global::initUsage()
 {
-   addUsageText("you can use commands as fowllow:\n\n", TerminalColor::LightGreen);
+   addUsageText("you can use commands as fowllow:\n", TerminalColor::LightGreen);
    addUsageText("version    show version info\n");
    addUsageText("help       get online usage doc\n");
    addUsageText("quit       exit application\n");
-   addUsageText("metaserver connect --host=\n");
+   addUsageText("metaserver connect --host=<host>         <host> specify the host server address\n");
 }
 
 void Global::initRouter()
@@ -46,7 +51,20 @@ void Global::initRouter()
                    {"category", "Global"},
                    {"name", "Quit"}
                 });
+   addTaskRoute("metaserver", "metaserver connect --host=", 1, {
+                   {"category", "Global"},
+                   {"name", "MetaServer"}
+                });
 }
+
+void Global::initTaskPool()
+{
+   m_taskRegisterPool.insert("Global_Global_MetaServer", [](AbstractTaskContainer& runner, const TaskMeta& meta)->AbstractTask*{
+      MetaServerTask* task = new MetaServerTask(runner, meta);
+      return task;
+   });
+}
+
 
 void Global::runTask(const shell::TaskMeta& meta)
 {

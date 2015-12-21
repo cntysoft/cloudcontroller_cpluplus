@@ -46,8 +46,8 @@ CloudControllerApplication
       name: "task"
       prefix: name+"/"
       files:[
-           "global/quit.h",
-           "global/version.h",
+           "global/metaserver.cpp",
+           "global/metaserver.h",
        ]
    }
    
@@ -57,6 +57,8 @@ CloudControllerApplication
       files:[
            "global.cpp",
            "global.h",
+           "metaserver.cpp",
+           "metaserver.h",
        ]
    }
 }
