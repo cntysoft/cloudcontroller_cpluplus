@@ -28,8 +28,9 @@ public:
    AbstractTaskContainer(const QString& name, TaskLoop& loop);
    void printUsage()const;
    const QString& getName();
+   void run(const QString& command);
 public:
-   virtual void run(const QString& command);
+   virtual void runTask(const TaskMeta& meta);
    virtual void loadHandler();
    virtual void unloadHandler();
    virtual ~AbstractTaskContainer();

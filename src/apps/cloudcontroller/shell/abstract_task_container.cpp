@@ -42,7 +42,11 @@ void AbstractTaskContainer::run(const QString& command)
    meta.setCategory(routeMatch.getParam("category"));
    meta.setName(routeMatch.getParam("name"));
    meta.setTaskArgs(routeMatch.getParams());
-   
+   runTask(meta);
+}
+
+void AbstractTaskContainer::runTask(const TaskMeta &meta)
+{
    QString key(meta.getContainer()+ '_' +meta.getCategory() + '_' + meta.getName());
    Q_ASSERT_X(m_taskRegisterPool.contains(key), "AbstractTaskContainer::run()", QString("command : %1 is not exist").arg(key).toLatin1());
    AbstractTask* (*initializer)(AbstractTaskContainer&, const TaskMeta&) = m_taskRegisterPool[key];

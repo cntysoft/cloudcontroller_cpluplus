@@ -40,6 +40,8 @@ public:
    AbstractTaskContainer& getCurrentTaskContainer();
    const QString& getConsolePsText();
    TaskLoop& setConsolePsText(const QString& psText);
+   bool isExitRequest();
+   TaskLoop& exitRequest();
    ~TaskLoop();
 public:
    TaskLoop& enterTaskContainer(const QString& name);
@@ -88,6 +90,7 @@ protected:
    int m_windowWidth;
    int m_windowHeight;
    int m_psLength;
+   bool m_exit;
 };
 
 

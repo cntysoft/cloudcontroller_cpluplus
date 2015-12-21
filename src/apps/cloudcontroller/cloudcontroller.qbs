@@ -45,7 +45,10 @@ CloudControllerApplication
    Group {
       name: "task"
       prefix: name+"/"
-      files:[]
+      files:[
+           "global/quit.h",
+           "global/version.h",
+       ]
    }
    
    Group{

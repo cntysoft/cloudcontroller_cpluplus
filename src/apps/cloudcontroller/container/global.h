@@ -9,13 +9,22 @@ namespace container{
 
 using cloudcontroller::shell::AbstractTaskContainer;
 using cloudcontroller::shell::TaskLoop;
+using cloudcontroller::shell::TaskMeta;
 
 class Global : public AbstractTaskContainer
 {
 public:
    Global(TaskLoop& loop);
 protected:
+   virtual void runTask(const TaskMeta& meta);
+protected:
+   bool dispatchBuildInTask(const TaskMeta& meta);
    void initUsage();
+   void initRouter();
+protected:
+   void showVersionTask(const TaskMeta& meta);
+   void showHelpTask(const TaskMeta& meta);
+   void quitTask(const TaskMeta& meta);
 };
 
 }//container

@@ -5,9 +5,7 @@
 #include <QRegularExpressionMatch>
 #include <QList>
 #include <QChar>
-#include <QDebug>
 
-#include <cstdio>
 #include <iostream>
 #include <sys/select.h>
 #include <sys/fcntl.h>
@@ -37,12 +35,24 @@ const int UNICODE_RANGE_START = 0x4E00;
 const int UNICODE_RANGE_END = 0x9FA5;
 
 TaskLoop::TaskLoop()
+   : m_exit(false)
 {
    QPair<int, int> winSize = Terminal::getWindowSize();
    m_windowWidth = winSize.first;
    m_windowHeight = winSize.second;
    setupTerminalAttr();
    initCommandContainer();
+}
+
+bool TaskLoop::isExitRequest()
+{
+   return m_exit;
+}
+
+TaskLoop& TaskLoop::exitRequest()
+{
+   m_exit = true;
+   return *this;
 }
 
 TaskLoop& TaskLoop::setConsolePsText(const QString &psText)
@@ -86,7 +96,7 @@ TaskLoop& TaskLoop::enterGlobalTaskContainer()
 
 TaskLoop& TaskLoop::enterTaskContainer(const QString& name)
 {
-   if(m_currentTaskContainer->getName() == "Global"){
+   if(m_currentTaskContainer == nullptr || m_currentTaskContainer->getName() == "Global"){
       if(m_taskContainerPool.contains(name)){
          m_currentTaskContainer = m_taskContainerPool.value(name);
          m_currentTaskContainer->loadHandler();
@@ -105,6 +115,9 @@ void TaskLoop::run()
       saveCycleBeginCursorPos();
       readCommand(command);
       runCommand(command);
+      if(isExitRequest()){
+         break;
+      }
    }
 }
 
@@ -120,7 +133,6 @@ void TaskLoop::runCommand(const QString &command)
 void TaskLoop::initCommandContainer()
 {
    m_taskContainerPool.insert("Global", new GlobalContainer(*this));
-   m_currentTaskContainer = m_taskContainerPool.value("Global");
 }
 
 
