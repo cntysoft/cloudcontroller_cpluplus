@@ -6,8 +6,6 @@
 #include "command/command_meta.h"
 #include "command/command_repo.h"
 
-#include <QDebug>
-
 namespace cloudcontroller
 {
 using sn::corelib::ErrorInfo;

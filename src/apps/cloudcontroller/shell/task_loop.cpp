@@ -449,6 +449,11 @@ QPair<int, int> TaskLoop::getCycleEndCursorPos()
 TaskLoop::~TaskLoop()
 {
    tcsetattr(STDIN_FILENO, TCSANOW, &m_savedTerminalAttr);
+   QMap<QString, AbstractTaskContainer*>::iterator it = m_taskContainerPool.begin();
+   while(it != m_taskContainerPool.end()){
+      delete it.value();
+      it++;
+   }
 }
 
 QMap<QString, TaskLoop::SpecialKeyName> TaskLoop::m_specialKeyMap{
