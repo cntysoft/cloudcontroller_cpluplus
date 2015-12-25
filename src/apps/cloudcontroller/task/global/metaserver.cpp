@@ -17,6 +17,7 @@ MetaServer::MetaServer(AbstractTaskContainer& taskContainer, const TaskMeta& met
 void MetaServer::run()
 {
    m_taskContainer.getTaskLoop().enterTaskContainer("MetaServer");
+   m_taskContainer.getTaskLoop().enterGlobalTaskContainer();
 }
 
 }//global

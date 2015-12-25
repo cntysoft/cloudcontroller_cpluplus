@@ -19,6 +19,8 @@
 
 #include "container/global.h"
 #include "container/metaserver.h"
+#include "container/upgrademgr.h"
+
 #include "abstract_task_container.h"
 
 namespace cloudcontroller{
@@ -30,6 +32,7 @@ using sn::corelib::ErrorInfo;
 
 using GlobalContainer = cloudcontroller::container::Global;
 using MetaServerContainer = cloudcontroller::container::MetaServer;
+using UpgradeMgrContainer = cloudcontroller::container::MetaServer;
 
 const int ASCII_NUL = 0;
 const int ASCII_ESC = 27;
@@ -138,6 +141,7 @@ void TaskLoop::initCommandContainer()
 {
    m_taskContainerPool.insert("Global", new GlobalContainer(*this));
    m_taskContainerPool.insert("MetaServer", new MetaServerContainer(*this));
+   m_taskContainerPool.insert("UpgradeMgr", new UpgradeMgrContainer(*this));
 }
 
 

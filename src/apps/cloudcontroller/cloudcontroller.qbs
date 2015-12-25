@@ -2,7 +2,7 @@ import qbs 1.0
 CloudControllerApplication
 {
    name : "cloudcontroller"
-   cpp.includePaths: base.concat(["."])
+   cpp.includePaths: base.concat([".", "../../libs"])
    cpp.defines: base.concat([
                                'CLOUD_CONTROLLER_VERSION="' + project.ccVersion + '"'
                             ])
@@ -48,6 +48,8 @@ CloudControllerApplication
       files:[
            "global/metaserver.cpp",
            "global/metaserver.h",
+           "upgrademgr/entry.cpp",
+           "upgrademgr/entry.h",
        ]
    }
    
@@ -59,6 +61,8 @@ CloudControllerApplication
            "global.h",
            "metaserver.cpp",
            "metaserver.h",
+           "upgrademgr.cpp",
+           "upgrademgr.h",
        ]
    }
 }

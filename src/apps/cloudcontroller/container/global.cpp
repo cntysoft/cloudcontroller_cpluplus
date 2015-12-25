@@ -6,7 +6,9 @@
 #include "shell/abstract_task.h"
 #include "shell/task_meta.h"
 #include "global/common_funcs.h"
+
 #include "task/global/metaserver.h"
+#include "task/upgrademgr/entry.h"
 
 namespace cloudcontroller{
 namespace container{
@@ -18,6 +20,7 @@ using cloudcontroller::shell::AbstractTask;
 using sn::corelib::get_core_application_ref;
 
 using MetaServerTask = cloudcontroller::task::global::MetaServer;
+using UpgradeMgrEntryTask = cloudcontroller::task::upgrademgr::EntryTask;
 
 Global::Global(shell::TaskLoop &loop)
    : AbstractTaskContainer("Global", loop)
@@ -55,12 +58,20 @@ void Global::initRouter()
                    {"category", "Global"},
                    {"name", "MetaServer"}
                 });
+   addTaskRoute("upgrademgr", "upgrademgr connect --host=", 1, {
+                   {"category", "Global"},
+                   {"name", "UpgradeMgr"}
+                });
 }
 
 void Global::initTaskPool()
 {
    m_taskRegisterPool.insert("Global_Global_MetaServer", [](AbstractTaskContainer& runner, const TaskMeta& meta)->AbstractTask*{
       MetaServerTask* task = new MetaServerTask(runner, meta);
+      return task;
+   });
+   m_taskRegisterPool.insert("Global_Global_UpgradeMgr", [](AbstractTaskContainer& runner, const TaskMeta& meta)->AbstractTask*{
+      UpgradeMgrEntryTask* task = new UpgradeMgrEntryTask(runner, meta);
       return task;
    });
 }
