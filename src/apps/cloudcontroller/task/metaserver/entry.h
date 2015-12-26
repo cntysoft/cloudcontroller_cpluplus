@@ -7,16 +7,16 @@
 
 namespace cloudcontroller{
 namespace task{
-namespace global{
+namespace metaserver{
 
 using cloudcontroller::shell::AbstractTask;
 using cloudcontroller::shell::AbstractTaskContainer;
 using cloudcontroller::shell::TaskMeta;
 
-class MetaServer : public AbstractTask
+class EntryTask : public AbstractTask
 {
 public:
-   MetaServer(AbstractTaskContainer& taskContainer, const TaskMeta& meta);
+   EntryTask(AbstractTaskContainer& taskContainer, const TaskMeta& meta);
    virtual void run();
 };
 

@@ -7,7 +7,7 @@
 #include "shell/task_meta.h"
 #include "global/common_funcs.h"
 
-#include "task/global/metaserver.h"
+#include "task/metaserver/entry.h"
 #include "task/upgrademgr/entry.h"
 
 namespace cloudcontroller{
@@ -18,7 +18,7 @@ using sn::corelib::TerminalColor;
 using cloudcontroller::shell::TaskMeta;
 using cloudcontroller::shell::AbstractTask;
 
-using MetaServerTask = cloudcontroller::task::global::MetaServer;
+using MetaServerTask = cloudcontroller::task::metaserver::EntryTask;
 using UpgradeMgrEntryTask = cloudcontroller::task::upgrademgr::EntryTask;
 
 Global::Global(shell::TaskLoop &loop)

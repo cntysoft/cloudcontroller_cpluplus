@@ -46,8 +46,8 @@ CloudControllerApplication
       name: "task"
       prefix: name+"/"
       files:[
-           "global/metaserver.cpp",
-           "global/metaserver.h",
+           "metaserver/entry.cpp",
+           "metaserver/entry.h",
            "upgrademgr/entry.cpp",
            "upgrademgr/entry.h",
        ]

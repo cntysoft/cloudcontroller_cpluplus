@@ -1,20 +1,20 @@
 #include <QDebug>
 
-#include "metaserver.h"
+#include "entry.h"
 #include "shell/task_loop.h"
 
 namespace cloudcontroller{
 namespace task{
-namespace global{
+namespace metaserver{
 
 using cloudcontroller::shell::TaskLoop;
 
-MetaServer::MetaServer(AbstractTaskContainer& taskContainer, const TaskMeta& meta)
+EntryTask::EntryTask(AbstractTaskContainer& taskContainer, const TaskMeta& meta)
    :AbstractTask(taskContainer, meta)
 {
 }
 
-void MetaServer::run()
+void EntryTask::run()
 {
    m_taskContainer.getTaskLoop().enterTaskContainer("MetaServer");
    m_taskContainer.getTaskLoop().enterGlobalTaskContainer();
