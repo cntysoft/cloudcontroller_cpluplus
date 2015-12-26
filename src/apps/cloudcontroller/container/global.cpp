@@ -17,7 +17,6 @@ using sn::corelib::Terminal;
 using sn::corelib::TerminalColor;
 using cloudcontroller::shell::TaskMeta;
 using cloudcontroller::shell::AbstractTask;
-using sn::corelib::get_core_application_ref;
 
 using MetaServerTask = cloudcontroller::task::global::MetaServer;
 using UpgradeMgrEntryTask = cloudcontroller::task::upgrademgr::EntryTask;

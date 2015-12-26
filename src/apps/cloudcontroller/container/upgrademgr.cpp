@@ -14,7 +14,7 @@ using cloudcontroller::shell::AbstractTask;
 using cloudcontroller::shell::TaskMeta;
 
 UpgradeMgr::UpgradeMgr(TaskLoop& loop)
-   :AbstractTaskContainer("MetaServer", loop)
+   :AbstractTaskContainer("UpgradeMgr", loop)
 {
    m_containerPs = "upgrademgr >> ";
    initUsage();

@@ -12,16 +12,16 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 
+#include "corelib/io/terminal.h"
+#include "corelib/kernel/errorinfo.h"
+#include "corelib/command/history.h"
+#include "corelib/kernel/application.h"
 
+#include "abstract_task_container.h"
 #include "task_loop.h"
-#include "io/terminal.h"
-#include "kernel/errorinfo.h"
-
 #include "container/global.h"
 #include "container/metaserver.h"
 #include "container/upgrademgr.h"
-
-#include "abstract_task_container.h"
 
 namespace cloudcontroller{
 namespace shell{
@@ -29,10 +29,11 @@ namespace shell{
 using sn::corelib::Terminal;
 using sn::corelib::TerminalColor;
 using sn::corelib::ErrorInfo;
+using sn::corelib::Application;
 
 using GlobalContainer = cloudcontroller::container::Global;
 using MetaServerContainer = cloudcontroller::container::MetaServer;
-using UpgradeMgrContainer = cloudcontroller::container::MetaServer;
+using UpgradeMgrContainer = cloudcontroller::container::UpgradeMgr;
 
 const int ASCII_NUL = 0;
 const int ASCII_ESC = 27;
@@ -107,6 +108,10 @@ TaskLoop& TaskLoop::enterTaskContainer(const QString& name)
       if(m_taskContainerPool.contains(name)){
          m_currentTaskContainer = m_taskContainerPool.value(name);
          m_currentTaskContainer->loadHandler();
+         if(!m_historyPool.contains(name)){
+            Application* app = sn::corelib::get_application_ref();
+            m_historyPool[name] = new History(app->getRuntimeDir()+"/history", name);
+         }
       }
    }
    return *this;
@@ -121,6 +126,10 @@ void TaskLoop::run()
       Terminal::writeText(m_ps.toLocal8Bit(), TerminalColor::LightBlue);
       saveCycleBeginCursorPos();
       readCommand(command);
+      History* history = m_historyPool[m_currentTaskContainer->getName()];
+      if(!command.isEmpty()){
+         history->addItem(command);
+      }
       runCommand(command);
       if(isExitRequest()){
          break;
@@ -218,10 +227,14 @@ void TaskLoop::filterBuffer(char* buffer, QString &ret)
 void TaskLoop::readUnitCycle(QString &unit, SpecialKeyName keyType)
 {
    switch(keyType){
-   case SpecialKeyName::ARROW_LEFT:
-   case SpecialKeyName::ARROW_RIGHT:
    case SpecialKeyName::ARROW_UP:
    case SpecialKeyName::ARROW_DOWN:
+   {
+      historyCommand(unit, keyType);
+      break;
+   }
+   case SpecialKeyName::ARROW_LEFT:
+   case SpecialKeyName::ARROW_RIGHT:
    {
       arrowCommand(unit, keyType);
       break;
@@ -251,6 +264,27 @@ void TaskLoop::readUnitCycle(QString &unit, SpecialKeyName keyType)
       break;   
    }
    }
+}
+
+void TaskLoop::historyCommand(QString &, SpecialKeyName keyType)
+{
+   
+   History* history = m_historyPool[m_currentTaskContainer->getName()];
+   QString command;
+   if(keyType == SpecialKeyName::ARROW_UP){
+      command = history->prev();
+   }else if(keyType == SpecialKeyName::ARROW_DOWN){
+      command = history->next();
+   }
+   command.remove('\n');
+   if(SpecialKeyName::ARROW_DOWN == keyType && history->isLast()){
+      m_cmdBuff.clear();
+      m_insertPos = 0;
+   }else if(!command.isEmpty()){
+      m_cmdBuff = command;
+      m_insertPos = command.size();
+   }
+   refreshLine(0);
 }
 
 void TaskLoop::arrowCommand(QString&, SpecialKeyName keyType)
@@ -457,6 +491,11 @@ TaskLoop::~TaskLoop()
    while(it != m_taskContainerPool.end()){
       delete it.value();
       it++;
+   }
+   QMap<QString, History*>::iterator hit = m_historyPool.begin();
+   while(hit != m_historyPool.end()){
+      delete hit.value();
+      hit++;
    }
 }
 

@@ -8,15 +8,23 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "global/global.h"
+#include "corelib/global/global.h"
 
 QT_BEGIN_NAMESPACE
 class QString;
 class QChar;
 QT_END_NAMESPACE
 
+namespace sn{
+namespace corelib{
+class History;
+}//sn
+}//corelib
+
 namespace cloudcontroller{
 namespace shell{
+
+using sn::corelib::History;
 
 class AbstractTaskContainer;
 
@@ -56,6 +64,7 @@ protected:
    SpecialKeyName getKeyTypeName(QString& unit);
 protected:
    //逻辑处理
+   void historyCommand(QString& unit, SpecialKeyName keyType);
    void arrowCommand(QString& unit, SpecialKeyName keyType);
    void asciiCommand(QString& unit, SpecialKeyName keyType);
    void delKeyCommand(QString& unit, SpecialKeyName keyType);
@@ -78,6 +87,7 @@ protected:
 protected:
    AbstractTaskContainer* m_currentTaskContainer = nullptr;
    QMap<QString, AbstractTaskContainer*> m_taskContainerPool;
+   QMap<QString, History*> m_historyPool;
 protected:
    //底层命令识别部分
    struct termios m_savedTerminalAttr;
