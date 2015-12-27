@@ -20,6 +20,7 @@
 #include "abstract_task_container.h"
 #include "abstract_task_loop.h"
 
+
 namespace cclib{
 namespace shell{
 
@@ -158,10 +159,14 @@ void AbstractTaskLoop::readCommand(QString &command)
 LABEL_AGAIN:
    int ret = select(nfds, &readFds, NULL, NULL, NULL);
    if(-1 == ret){
-      if(errno == EINTR){
+      if(errno == EINTR && isNeedRestartSelectCall()){
          goto LABEL_AGAIN;
       }
-      throw ErrorInfo("select error");
+      if(errno != EINTR){
+         throw ErrorInfo("select error");
+      }else{
+         ::exit(Application::instance()->getCatchedSignalNumber());
+      }
    }
    for(int fd = 0; fd < nfds; fd++){
       if(FD_ISSET(fd, &readFds)){
@@ -183,6 +188,11 @@ LABEL_AGAIN:
          goto LABEL_AGAIN;
       }
    }
+}
+
+bool AbstractTaskLoop::isNeedRestartSelectCall()
+{
+   return true;
 }
 
 void AbstractTaskLoop::filterBuffer(char* buffer, QString &ret)

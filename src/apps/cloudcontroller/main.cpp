@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
    try{
       CloudControllerApplication app(argc, argv);
       app.ensureImportantDir();
+      app.watchImportantSignal();
       CommandRunner cmdrunner(app);
       QTimer::singleShot(0, Qt::PreciseTimer, [&cmdrunner]{
          cmdrunner.run();

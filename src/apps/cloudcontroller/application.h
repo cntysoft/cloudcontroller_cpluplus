@@ -12,6 +12,8 @@ class Application : public BaseApplication
 public:
    Application(int &argc, char **argv);
 public:
+   void watchImportantSignal();
+public:
    virtual ~Application();
    virtual Settings::CfgInitializerFnType getDefaultCfgInitializerFn();
 };

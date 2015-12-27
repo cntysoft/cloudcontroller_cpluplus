@@ -3,9 +3,6 @@
 
 #include "cclib/shell/abstract_task_loop.h"
 
-//#include "container/global.h"
-//#include "container/metaserver.h"
-//#include "container/upgrademgr.h"
 
 namespace cloudcontroller{
 namespace shell{
@@ -16,6 +13,7 @@ class TaskLoop : public AbstractTaskLoop
 {
 protected:
    virtual void initCommandContainer();
+   virtual bool isNeedRestartSelectCall();
 };
 
 }//shell

@@ -57,6 +57,7 @@ public:
 protected:
    //命令容器相关的
    virtual void initCommandContainer() = 0;
+   virtual bool isNeedRestartSelectCall();
 protected:
    void setupTerminalAttr();
    void readCommand(QString& command);
