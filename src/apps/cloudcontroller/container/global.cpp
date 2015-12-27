@@ -1,11 +1,13 @@
 #include <QCoreApplication>
 
+#include "corelib/io/terminal.h"
+
 #include "global.h"
-#include "io/terminal.h"
-#include "shell/task_meta.h"
-#include "shell/abstract_task.h"
-#include "shell/task_meta.h"
 #include "global/common_funcs.h"
+
+#include "cclib/shell/task_meta.h"
+#include "cclib/shell/abstract_task.h"
+#include "cclib/shell/task_meta.h"
 
 #include "task/metaserver/entry.h"
 #include "task/upgrademgr/entry.h"
@@ -15,8 +17,8 @@ namespace container{
 
 using sn::corelib::Terminal;
 using sn::corelib::TerminalColor;
-using cloudcontroller::shell::TaskMeta;
-using cloudcontroller::shell::AbstractTask;
+using cclib::shell::TaskMeta;
+using cclib::shell::AbstractTask;
 
 using MetaServerTask = cloudcontroller::task::metaserver::EntryTask;
 using UpgradeMgrEntryTask = cloudcontroller::task::upgrademgr::EntryTask;
@@ -59,24 +61,25 @@ void Global::initRouter()
                 });
    addTaskRoute("upgrademgr", "upgrademgr connect --host=", 1, {
                    {"category", "Global"},
-                   {"name", "UpgradeMgr"}
+                   {"name", "UpgradeMgr"},
+                   {"port", "7777"}
                 });
 }
 
 void Global::initTaskPool()
 {
-   m_taskRegisterPool.insert("Global_Global_MetaServer", [](AbstractTaskContainer& runner, const TaskMeta& meta)->AbstractTask*{
-      MetaServerTask* task = new MetaServerTask(runner, meta);
+   m_taskRegisterPool.insert("Global_Global_MetaServer", [](AbstractTaskContainer& container, const TaskMeta& meta)->AbstractTask*{
+      MetaServerTask* task = new MetaServerTask(container, meta);
       return task;
    });
-   m_taskRegisterPool.insert("Global_Global_UpgradeMgr", [](AbstractTaskContainer& runner, const TaskMeta& meta)->AbstractTask*{
-      UpgradeMgrEntryTask* task = new UpgradeMgrEntryTask(runner, meta);
+   m_taskRegisterPool.insert("Global_Global_UpgradeMgr", [](AbstractTaskContainer& container, const TaskMeta& meta)->AbstractTask*{
+      UpgradeMgrEntryTask* task = new UpgradeMgrEntryTask(container, meta);
       return task;
    });
 }
 
 
-void Global::runTask(const shell::TaskMeta& meta)
+void Global::runTask(const TaskMeta& meta)
 {
    if(!dispatchBuildInTask(meta)){
       AbstractTaskContainer::runTask(meta);

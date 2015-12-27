@@ -2,16 +2,16 @@
 #include <QRegularExpression>
 #include <QScopedPointer>
 
+#include "corelib/kernel/errorinfo.h"
+#include "corelib/command/route_item.h"
+#include "corelib/command/route_match_result.h"
+
 #include "abstract_task_container.h"
-
-#include "command/route_item.h"
-#include "command/route_match_result.h"
 #include "task_meta.h"
-#include "kernel/errorinfo.h"
 #include "abstract_task.h"
-#include "task_loop.h"
+#include "abstract_task_loop.h"
 
-namespace cloudcontroller{
+namespace cclib{
 namespace shell{
 
 using sn::corelib::RouteItem;
@@ -19,7 +19,7 @@ using sn::corelib::RouteMatchResult;
 using sn::corelib::Terminal;
 using sn::corelib::ErrorInfo;
 
-AbstractTaskContainer::AbstractTaskContainer(const QString& name, TaskLoop &loop)
+AbstractTaskContainer::AbstractTaskContainer(const QString& name, AbstractTaskLoop &loop)
    : m_name(name),
      m_taskLoop(loop)
 {}
@@ -29,7 +29,7 @@ const QString& AbstractTaskContainer::getName()
    return m_name;
 }
 
-TaskLoop& AbstractTaskContainer::getTaskLoop()
+AbstractTaskLoop& AbstractTaskContainer::getTaskLoop()
 {
    return m_taskLoop;
 }
@@ -47,7 +47,15 @@ void AbstractTaskContainer::run(const QString& command)
    meta.setCategory(routeMatch.getParam("category"));
    meta.setName(routeMatch.getParam("name"));
    meta.setTaskArgs(routeMatch.getParams());
-   runTask(meta);
+   try{
+      runTask(meta);
+   }catch(ErrorInfo errorInfo){
+      QString str(errorInfo.toString());
+      if(str.size() > 0){
+         str += '\n';
+         Terminal::writeText(str.toLatin1(), TerminalColor::Red);
+      }
+   }
 }
 
 void AbstractTaskContainer::runTask(const TaskMeta &meta)
@@ -101,4 +109,4 @@ AbstractTaskContainer::~AbstractTaskContainer()
 {}
 
 }//shell
-}//cloudcontroller
+}//cclib

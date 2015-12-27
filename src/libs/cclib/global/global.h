@@ -1,0 +1,15 @@
+#ifndef CLOUD_CONTROLLER_LIB_GLOBAL_GLOBAL_H
+#define CLOUD_CONTROLLER_LIB_GLOBAL_GLOBAL_H
+
+#include "corelib/global/global.h"
+
+#ifdef CLOUD_CONTROLLER_STATIC_LIB
+   #define CC_LIB_EXPORT 
+#else
+   #ifdef CLOUD_CONTROLLER_LIBRARY
+      #define CC_LIB_EXPORT Q_DECL_EXPORT
+   #else
+      #define CC_LIB_EXPORT Q_DECL_IMPORT
+   #endif
+#endif
+#endif // CLOUD_CONTROLLER_LIB_GLOBAL_GLOBAL_H

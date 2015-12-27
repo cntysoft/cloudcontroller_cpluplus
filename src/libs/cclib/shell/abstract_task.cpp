@@ -1,7 +1,7 @@
 #include "abstract_task.h"
 #include "io/terminal.h"
 
-namespace cloudcontroller{
+namespace cclib{
 namespace shell{
 
 using sn::corelib::Terminal;
@@ -21,4 +21,4 @@ AbstractTask::~AbstractTask()
 {}
 
 }//shell
-}//cloudcontroller
+}//cclib

@@ -1,12 +1,15 @@
-#ifndef CLOUD_CONTROLLER_SHELL_TASK_META_H
-#define CLOUD_CONTROLLER_SHELL_TASK_META_H
+#ifndef CLOUD_CONTROLLER_LIB_SHELL_TASK_META_H
+#define CLOUD_CONTROLLER_LIB_SHELL_TASK_META_H
 
 #include <QMap>
 
-namespace cloudcontroller{
+#include "global/global.h"
+#include "abstract_task.h"
+
+namespace cclib{
 namespace shell{
 
-class TaskMeta
+class CC_LIB_EXPORT TaskMeta
 {
 public:
    using TaskArgType = QMap<QString, QString>;
@@ -30,6 +33,6 @@ protected:
 };
 
 }//shell
-}//cloudcontroller
+}//cclib
 
-#endif // CLOUD_CONTROLLER_SHELL_TASK_META_H
+#endif // CLOUD_CONTROLLER_LIB_SHELL_TASK_META_H

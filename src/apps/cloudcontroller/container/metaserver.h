@@ -1,15 +1,15 @@
 #ifndef CLOUD_CONTROLLER_CONTAINER_METASERVER_H
 #define CLOUD_CONTROLLER_CONTAINER_METASERVER_H
 
-#include "shell/abstract_task_container.h"
+#include "cclib/shell/abstract_task_container.h"
 #include "shell/task_loop.h"
 
 namespace cloudcontroller{
 namespace container{
 
-using cloudcontroller::shell::AbstractTaskContainer;
+using cclib::shell::AbstractTaskContainer;
 using cloudcontroller::shell::TaskLoop;
-using cloudcontroller::shell::TaskMeta;
+using cclib::shell::TaskMeta;
 
 class MetaServer : public AbstractTaskContainer
 {

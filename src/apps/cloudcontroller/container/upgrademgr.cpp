@@ -3,15 +3,15 @@
 #include "corelib/io/terminal.h"
 
 #include "upgrademgr.h"
-#include "shell/task_meta.h"
-#include "shell/abstract_task.h"
+#include "cclib/shell/task_meta.h"
+#include "cclib/shell/abstract_task.h"
 
 namespace cloudcontroller{
 namespace container{
 
 using sn::corelib::TerminalColor;
-using cloudcontroller::shell::AbstractTask;
-using cloudcontroller::shell::TaskMeta;
+using cclib::shell::AbstractTask;
+using cclib::shell::TaskMeta;
 
 UpgradeMgr::UpgradeMgr(TaskLoop& loop)
    :AbstractTaskContainer("UpgradeMgr", loop)
@@ -50,6 +50,19 @@ bool UpgradeMgr::dispatchBuildInTask(const TaskMeta& meta)
       return true;
    }
    return false;
+}
+
+UpgradeMgr& UpgradeMgr::setApiInvoker(ApiInvoker *apiInvoker)
+{
+   if(nullptr != apiInvoker){
+      m_apiInvoker.reset(apiInvoker);
+   }
+   return *this;
+}
+
+QSharedPointer<ApiInvoker>& UpgradeMgr::getApiInvoker()
+{
+   return m_apiInvoker;
 }
 
 void UpgradeMgr::quitTask(const TaskMeta&)

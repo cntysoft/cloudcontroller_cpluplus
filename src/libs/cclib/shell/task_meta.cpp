@@ -1,6 +1,6 @@
 #include "task_meta.h"
 
-namespace cloudcontroller{
+namespace cclib{
 namespace shell{
 
 TaskMeta::TaskMeta()
@@ -59,4 +59,4 @@ const TaskMeta::TaskArgType & TaskMeta::getTaskArgs() const
 }
 
 }//shell
-}//cloudcontroller
+}//cclib

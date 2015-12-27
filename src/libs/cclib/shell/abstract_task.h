@@ -1,10 +1,10 @@
-#ifndef CLOUD_CONTROLLER_SHELL_ABSTRACT_TASK_H
-#define CLOUD_CONTROLLER_SHELL_ABSTRACT_TASK_H
+#ifndef CLOUD_CONTROLLER_LIB_SHELL_ABSTRACT_TASK_H
+#define CLOUD_CONTROLLER_LIB_SHELL_ABSTRACT_TASK_H
 
+#include "corelib/io/terminal.h"
 #include "global/global.h"
-#include "io/terminal.h"
 
-namespace cloudcontroller{
+namespace cclib{
 namespace shell{
 
 using sn::corelib::TerminalColor;
@@ -12,7 +12,7 @@ using sn::corelib::TerminalColor;
 class AbstractTaskContainer;
 class TaskMeta;
 
-class AbstractTask
+class CC_LIB_EXPORT AbstractTask
 {
    Q_DISABLE_COPY(AbstractTask)
 public:
@@ -27,6 +27,6 @@ protected:
 };
 
 }//shell
-}//cloudcontroller
+}//cclib
 
-#endif // CLOUD_CONTROLLER_SHELL_ABSTRACT_TASK_H
+#endif // CLOUD_CONTROLLER_LIB_SHELL_ABSTRACT_TASK_H

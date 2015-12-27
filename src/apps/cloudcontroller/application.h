@@ -13,6 +13,7 @@ public:
    Application(int &argc, char **argv);
 public:
    virtual ~Application();
+   virtual Settings::CfgInitializerFnType getDefaultCfgInitializerFn();
 };
 
 }//cloudcontroller

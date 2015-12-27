@@ -2,15 +2,15 @@
 
 #include "metaserver.h"
 #include "io/terminal.h"
-#include "shell/task_meta.h"
-#include "shell/abstract_task.h"
+#include "cclib/shell/task_meta.h"
+#include "cclib/shell/abstract_task.h"
 
 namespace cloudcontroller{
 namespace container{
 
 using sn::corelib::TerminalColor;
-using cloudcontroller::shell::AbstractTask;
-using cloudcontroller::shell::TaskMeta;
+using cclib::shell::AbstractTask;
+using cclib::shell::TaskMeta;
 
 MetaServer::MetaServer(TaskLoop& loop)
    :AbstractTaskContainer("MetaServer", loop)
