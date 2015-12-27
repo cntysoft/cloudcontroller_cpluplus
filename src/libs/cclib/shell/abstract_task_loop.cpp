@@ -93,12 +93,24 @@ AbstractTaskLoop& AbstractTaskLoop::enterGlobalTaskContainer()
    return *this;
 }
 
-AbstractTaskLoop& AbstractTaskLoop::enterTaskContainer(const QString& name)
+AbstractTaskContainer* AbstractTaskLoop::getTaskContainer(const QString &name)
+{
+   if(!m_taskContainerPool.contains(name)){
+      return nullptr;
+   }else{
+      return m_taskContainerPool.value(name);
+   }
+}
+
+AbstractTaskLoop& AbstractTaskLoop::enterTaskContainer(const QString& name, const QMap<QString, QString>& args)
 {
    if(m_currentTaskContainer == nullptr || 
          (m_currentTaskContainer->getName() == "Global" && name != "Global")||
          (m_currentTaskContainer->getName() != "Global" && name == "Global")){
       if(m_taskContainerPool.contains(name)){
+         if(nullptr != m_currentTaskContainer){
+            m_currentTaskContainer->unloadHandler();
+         }
          m_currentTaskContainer = m_taskContainerPool.value(name);
          m_currentTaskContainer->loadHandler();
          if(!m_historyPool.contains(name)){

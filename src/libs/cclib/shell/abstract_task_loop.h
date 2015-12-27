@@ -52,8 +52,9 @@ public:
    AbstractTaskLoop& exitRequest();
    virtual ~AbstractTaskLoop();
 public:
-   AbstractTaskLoop& enterTaskContainer(const QString& name);
+   AbstractTaskLoop& enterTaskContainer(const QString& name, const QMap<QString, QString>& args = QMap<QString, QString>());
    AbstractTaskLoop& enterGlobalTaskContainer();
+   AbstractTaskContainer* getTaskContainer(const QString &name);
 protected:
    //命令容器相关的
    virtual void initCommandContainer() = 0;

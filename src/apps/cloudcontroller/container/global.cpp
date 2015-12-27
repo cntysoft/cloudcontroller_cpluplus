@@ -9,8 +9,7 @@
 #include "cclib/shell/abstract_task.h"
 #include "cclib/shell/task_meta.h"
 
-#include "task/metaserver/entry.h"
-#include "task/upgrademgr/entry.h"
+#include "task/global/enter_upgrademgr_task.h"
 
 namespace cloudcontroller{
 namespace container{
@@ -20,8 +19,7 @@ using sn::corelib::TerminalColor;
 using cclib::shell::TaskMeta;
 using cclib::shell::AbstractTask;
 
-using MetaServerTask = cloudcontroller::task::metaserver::EntryTask;
-using UpgradeMgrEntryTask = cloudcontroller::task::upgrademgr::EntryTask;
+using cloudcontroller::task::global::EnterUpgradeMgrTask;
 
 Global::Global(shell::TaskLoop &loop)
    : AbstractTaskContainer("Global", loop)
@@ -59,21 +57,16 @@ void Global::initRouter()
                    {"category", "Global"},
                    {"name", "MetaServer"}
                 });
-   addTaskRoute("upgrademgr", "upgrademgr connect --host=", 1, {
+   addTaskRoute("upgrademgr", "upgrademgr connect [--host=] [--port=]", 1, {
                    {"category", "Global"},
-                   {"name", "UpgradeMgr"},
-                   {"port", "7777"}
+                   {"name", "EnterUpgradeMgr"}
                 });
 }
 
 void Global::initTaskPool()
 {
-   m_taskRegisterPool.insert("Global_Global_MetaServer", [](AbstractTaskContainer& container, const TaskMeta& meta)->AbstractTask*{
-      MetaServerTask* task = new MetaServerTask(container, meta);
-      return task;
-   });
-   m_taskRegisterPool.insert("Global_Global_UpgradeMgr", [](AbstractTaskContainer& container, const TaskMeta& meta)->AbstractTask*{
-      UpgradeMgrEntryTask* task = new UpgradeMgrEntryTask(container, meta);
+   m_taskRegisterPool.insert("Global_Global_EnterUpgradeMgr", [](AbstractTaskContainer* container, const TaskMeta& meta)->AbstractTask*{
+      EnterUpgradeMgrTask* task = new EnterUpgradeMgrTask(container, meta);
       return task;
    });
 }

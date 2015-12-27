@@ -41,26 +41,22 @@ CloudControllerApplication
       name: "task"
       prefix: name+"/"
       files:[
-         "metaserver/entry.cpp",
-         "metaserver/entry.h",
-         "upgrademgr/abstract_task.cpp",
-         "upgrademgr/abstract_task.h",
-         "upgrademgr/entry.cpp",
-         "upgrademgr/entry.h",
-      ]
+           "global/enter_upgrademgr_task.cpp",
+           "global/enter_upgrademgr_task.h",
+           "upgrademgr/abstract_task.cpp",
+           "upgrademgr/abstract_task.h",
+       ]
    }
    
    Group {
       name: "container"
       prefix: name+"/"
       files:[
-         "global.cpp",
-         "global.h",
-         "metaserver.cpp",
-         "metaserver.h",
-         "upgrademgr.cpp",
-         "upgrademgr.h",
-      ]
+           "global.cpp",
+           "global.h",
+           "upgrademgr.cpp",
+           "upgrademgr.h",
+       ]
    }
    
    Group {

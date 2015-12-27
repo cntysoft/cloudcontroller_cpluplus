@@ -3,6 +3,8 @@
 
 #include <QTcpSocket>
 #include <QSharedPointer>
+#include <QMap>
+#include <QString>
 
 #include "cclib/shell/abstract_task_container.h"
 #include "shell/task_loop.h"
@@ -23,7 +25,10 @@ class UpgradeMgr : public AbstractTaskContainer
    Q_DISABLE_COPY(UpgradeMgr)
 public:
    UpgradeMgr(TaskLoop& loop);
-   UpgradeMgr& connectToServer(const QString &host, int port);
+   bool connectToServer(const QString &host, int port);
+   bool isTcpConnectionValid();
+   QString getTcpConnectionErrorString();
+   virtual void loadHandler(const QMap<QString, QString>& invokeArgs = QMap<QString, QString>());
 protected:
    virtual void runTask(const TaskMeta& meta);
    UpgradeMgr& setApiInvoker(ApiInvoker* apiInvoker);

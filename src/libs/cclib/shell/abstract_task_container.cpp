@@ -1,4 +1,3 @@
-#include <QDebug>
 #include <QRegularExpression>
 #include <QScopedPointer>
 
@@ -21,7 +20,8 @@ using sn::corelib::ErrorInfo;
 
 AbstractTaskContainer::AbstractTaskContainer(const QString& name, AbstractTaskLoop &loop)
    : m_name(name),
-     m_taskLoop(loop)
+     m_taskLoop(loop),
+     m_app(*Application::instance())
 {}
 
 const QString& AbstractTaskContainer::getName()
@@ -53,7 +53,7 @@ void AbstractTaskContainer::run(const QString& command)
       QString str(errorInfo.toString());
       if(str.size() > 0){
          str += '\n';
-         Terminal::writeText(str.toLatin1(), TerminalColor::Red);
+         Terminal::writeText(str.toLocal8Bit(), TerminalColor::Red);
       }
    }
 }
@@ -62,8 +62,8 @@ void AbstractTaskContainer::runTask(const TaskMeta &meta)
 {
    QString key(meta.getContainer()+ '_' +meta.getCategory() + '_' + meta.getName());
    Q_ASSERT_X(m_taskRegisterPool.contains(key), "AbstractTaskContainer::run()", QString("command : %1 is not exist").arg(key).toLatin1());
-   AbstractTask* (*initializer)(AbstractTaskContainer&, const TaskMeta&) = m_taskRegisterPool[key];
-   QScopedPointer<AbstractTask> task(initializer(*this, meta));
+   AbstractTask* (*initializer)(AbstractTaskContainer*, const TaskMeta&) = m_taskRegisterPool[key];
+   QScopedPointer<AbstractTask> task(initializer(this, meta));
    task->run();
 }
 
@@ -83,6 +83,14 @@ void AbstractTaskContainer::addUsageText(const QString& text, TerminalColor colo
                           });
 }
 
+void AbstractTaskContainer::writeSubMsg(const QString &msg)
+{
+   QString toBeWrite(msg);
+   toBeWrite += "\n";
+   Terminal::writeText("> ", TerminalColor::Green);
+   Terminal::writeText(toBeWrite.toLocal8Bit(), TerminalColor::Default);
+}
+
 void AbstractTaskContainer::addTaskRoute(const QString& name, const QString& route, int priority, const QMap<QString, QString>& defaultParams)
 {
    Q_ASSERT_X(defaultParams.contains("category") && defaultParams.contains("name"), 
@@ -90,7 +98,7 @@ void AbstractTaskContainer::addTaskRoute(const QString& name, const QString& rou
    m_router.addRoute(name, RouteItem(route, defaultParams), priority);
 }
 
-void AbstractTaskContainer::loadHandler()
+void AbstractTaskContainer::loadHandler(const QMap<QString, QString>&)
 {
    if(!m_containerPs.isEmpty()){
       m_psBackup = m_taskLoop.getConsolePsText();

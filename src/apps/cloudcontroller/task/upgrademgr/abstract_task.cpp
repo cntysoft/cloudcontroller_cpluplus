@@ -4,10 +4,11 @@ namespace cloudcontroller{
 namespace task{
 namespace upgrademgr{
 
-AbstractTask::AbstractTask(AbstractTaskContainer& taskContainer, const TaskMeta& meta)
-   :AbstractTask(taskContainer, meta)
+AbstractTask::AbstractTask(AbstractTaskContainer* taskContainer, const TaskMeta& meta)
+   :BaseAbstractTask(taskContainer, meta)
 {
 }
+
 
 }//upgrademgr
 }//task

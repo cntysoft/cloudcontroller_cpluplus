@@ -4,9 +4,11 @@
 #include <QPair>
 #include <QString>
 #include <QList>
+#include <QMap>
 
 #include "corelib/io/terminal.h"
 #include "corelib/command/route_stack.h"
+#include "corelib/kernel/application.h"
 
 #include "global/global.h"
 
@@ -15,6 +17,7 @@ namespace shell{
 
 using sn::corelib::TerminalColor;
 using sn::corelib::RouteStack;
+using sn::corelib::Application;
 
 class AbstractTask;
 class TaskMeta;
@@ -25,16 +28,17 @@ class CC_LIB_EXPORT AbstractTaskContainer
    Q_DISABLE_COPY(AbstractTaskContainer)
 public:
    using UsageTextItemType = QPair<QString, TerminalColor>;
-   using TaskPoolType = QMap<QString, AbstractTask* (*)(AbstractTaskContainer&, const TaskMeta&)>;
+   using TaskPoolType = QMap<QString, AbstractTask* (*)(AbstractTaskContainer*, const TaskMeta&)>;
 public:
    AbstractTaskContainer(const QString& name, AbstractTaskLoop& loop);
    void printUsage()const;
    const QString& getName();
    void run(const QString& command);
    AbstractTaskLoop& getTaskLoop();
+   void writeSubMsg(const QString& msg);
 public:
    virtual void runTask(const TaskMeta& meta);
-   virtual void loadHandler();
+   virtual void loadHandler(const QMap<QString, QString>& invokeArgs = QMap<QString, QString>());
    virtual void unloadHandler();
    virtual ~AbstractTaskContainer();
 protected:
@@ -48,6 +52,7 @@ protected:
    AbstractTaskLoop& m_taskLoop;
    QString m_containerPs;
    QString m_psBackup;
+   Application& m_app;
 };
 
 }//shell
