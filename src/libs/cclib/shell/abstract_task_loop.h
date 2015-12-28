@@ -103,6 +103,7 @@ protected:
    int m_windowHeight;
    int m_psLength;
    bool m_exit;
+   int m_history_nav_flag = 0;
 };
 
 }//shell

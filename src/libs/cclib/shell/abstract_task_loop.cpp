@@ -281,13 +281,20 @@ void AbstractTaskLoop::historyCommand(QString &, SpecialKeyName keyType)
    QString command;
    if(keyType == SpecialKeyName::ARROW_UP){
       command = history->prev();
+      m_history_nav_flag = 0;
    }else if(keyType == SpecialKeyName::ARROW_DOWN){
       command = history->next();
    }
    command.remove('\n');
    if(SpecialKeyName::ARROW_DOWN == keyType && history->isLast()){
-      m_cmdBuff.clear();
-      m_insertPos = 0;
+      if(m_history_nav_flag < 1){
+         m_cmdBuff = command;
+         m_insertPos = command.size();
+         m_history_nav_flag++;
+      }else{
+         m_cmdBuff.clear();
+         m_insertPos = 0;
+      }
    }else if(!command.isEmpty()){
       m_cmdBuff = command;
       m_insertPos = command.size();

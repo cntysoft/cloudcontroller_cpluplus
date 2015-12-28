@@ -4,12 +4,10 @@
 #include <QSharedPointer>
 
 #include "cclib/shell/abstract_task.h"
-#include "cclib/shell/abstract_task_container.h"
 #include "cclib/shell/task_meta.h"
-
 #include "container/upgrademgr.h"
 
-#include <corelib/network/rpc/api_invoker.h>
+#include "corelib/network/rpc/api_invoker.h"
 
 namespace cloudcontroller{
 namespace task{
@@ -20,7 +18,7 @@ using cclib::shell::AbstractTaskContainer;
 using cclib::shell::TaskMeta;
 using UpgradeMgrContainer = cloudcontroller::container::UpgradeMgr;
 
-using sn::network::ApiInvoker;
+using sn::corelib::network::ApiInvoker;
 
 class AbstractTask : public BaseAbstractTask
 {

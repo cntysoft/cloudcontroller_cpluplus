@@ -10,6 +10,7 @@
 #include "cclib/shell/task_meta.h"
 #include "cclib/shell/abstract_task.h"
 
+#include "task/upgrademgr/upgrademgr_task_repo.h"
 
 namespace cloudcontroller{
 namespace container{
@@ -20,6 +21,8 @@ using sn::corelib::ErrorInfo;
 using cclib::shell::AbstractTask;
 using cclib::shell::TaskMeta;
 
+USE_SOFTWARE_REPO_TASK_LIST
+
 UpgradeMgr::UpgradeMgr(TaskLoop& loop)
    :AbstractTaskContainer("UpgradeMgr", loop),
      m_client(new QTcpSocket)
@@ -27,6 +30,7 @@ UpgradeMgr::UpgradeMgr(TaskLoop& loop)
    m_containerPs = "upgrademgr >> ";
    initUsage();
    initRouter();
+   initTaskPool();
 }
 
 void UpgradeMgr::runTask(const TaskMeta& meta)
@@ -48,6 +52,18 @@ void UpgradeMgr::initRouter()
                    {"category", "UpgradeMgr"},
                    {"name", "Quit"}
                 });
+   addTaskRoute("softwarerepolistrepo", "list_software_repo", 1, {
+                   {"category", "SoftwareRepo"},
+                   {"name", "ListRepo"}
+                });
+}
+
+void UpgradeMgr::initTaskPool()
+{
+   m_taskRegisterPool.insert("UpgradeMgr_SoftwareRepo_ListRepo", [](AbstractTaskContainer* container, const TaskMeta& meta)->AbstractTask*{
+      SoftwareRepoListRepoTask* task = new SoftwareRepoListRepoTask(container, meta);
+      return task;
+   });
 }
 
 bool UpgradeMgr::dispatchBuildInTask(const TaskMeta& meta)
@@ -83,8 +99,13 @@ void UpgradeMgr::loadHandler(const QMap<QString, QString> &invokeArgs)
    }else{
       writeSubMsg(QString("连接服务器成功 [%1:%2]").arg(host).arg(port));
       AbstractTaskContainer::loadHandler(invokeArgs);
-      
    }
+}
+
+void UpgradeMgr::unloadHandler()
+{
+   writeSubMsg("正在断开连接 ... ");
+   m_client->disconnectFromHost();
 }
 
 bool UpgradeMgr::connectToServer(const QString &host, int port)
@@ -114,16 +135,11 @@ QString UpgradeMgr::getTcpConnectionErrorString()
    }
 }
 
-UpgradeMgr& UpgradeMgr::setApiInvoker(ApiInvoker *apiInvoker)
-{
-   if(nullptr != apiInvoker){
-      m_apiInvoker.reset(apiInvoker);
-   }
-   return *this;
-}
-
 QSharedPointer<ApiInvoker>& UpgradeMgr::getApiInvoker()
 {
+   if(isTcpConnectionValid()){
+      m_apiInvoker.reset(new ApiInvoker(m_client));
+   }
    return m_apiInvoker;
 }
 

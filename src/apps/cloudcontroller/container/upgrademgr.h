@@ -18,7 +18,7 @@ using cclib::shell::AbstractTaskContainer;
 using cloudcontroller::shell::TaskLoop;
 using cclib::shell::TaskMeta;
 
-using sn::network::ApiInvoker;
+using sn::corelib::network::ApiInvoker;
 
 class UpgradeMgr : public AbstractTaskContainer
 {
@@ -28,15 +28,17 @@ public:
    bool connectToServer(const QString &host, int port);
    bool isTcpConnectionValid();
    QString getTcpConnectionErrorString();
+   QSharedPointer<ApiInvoker>& getApiInvoker();
+public:
    virtual void loadHandler(const QMap<QString, QString>& invokeArgs = QMap<QString, QString>());
+   virtual void unloadHandler();
 protected:
    virtual void runTask(const TaskMeta& meta);
-   UpgradeMgr& setApiInvoker(ApiInvoker* apiInvoker);
-   QSharedPointer<ApiInvoker>& getApiInvoker();
 protected:
    bool dispatchBuildInTask(const TaskMeta& meta);
    void initUsage();
    void initRouter();
+      void initTaskPool();
 protected:
    void quitTask(const TaskMeta& meta);
 protected:

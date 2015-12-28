@@ -1,10 +1,13 @@
 #include "abstract_task.h"
-#include "io/terminal.h"
+#include "corelib/io/terminal.h"
+
+#include "shell/abstract_task_container.h"
 
 namespace cclib{
 namespace shell{
 
 using sn::corelib::Terminal;
+using sn::corelib::TerminalColor;
 
 AbstractTask::AbstractTask(AbstractTaskContainer* taskContainer, const TaskMeta& meta)
    : m_taskContainer(taskContainer),
@@ -13,9 +16,10 @@ AbstractTask::AbstractTask(AbstractTaskContainer* taskContainer, const TaskMeta&
 {
 }
 
-void AbstractTask::printConsoleMsg(const char *str, sn::corelib::TerminalColor color, bool underline, bool blink) const
+void AbstractTask::writeSubMsg(const QString& msg, TerminalColor color, bool underline, bool blink) const
 {
-   Terminal::writeText(str, color, underline, blink);
+   Terminal::writeText(" >", TerminalColor::Green);
+   Terminal::writeText(msg.toLocal8Bit(), color, underline, blink);
 }
 
 AbstractTaskContainer* AbstractTask::getTaskContainer()

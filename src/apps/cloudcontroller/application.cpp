@@ -1,4 +1,5 @@
 #include <csignal>
+#include <cerrno>
 #include <QDebug>
 
 #include "application.h"

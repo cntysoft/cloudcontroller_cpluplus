@@ -11,6 +11,7 @@ namespace shell{
 
 using GlobalContainer = cloudcontroller::container::Global;
 using UpgradeMgrContainer = cloudcontroller::container::UpgradeMgr;
+using sn::corelib::Application;
 
 void TaskLoop::initCommandContainer()
 {
@@ -20,7 +21,7 @@ void TaskLoop::initCommandContainer()
 
 bool TaskLoop::isNeedRestartSelectCall()
 {
-   return false;
+   return Application::instance()->getCatchedSignalNumber() == SIGINT ? false : true;
 }
 
 }//shell
