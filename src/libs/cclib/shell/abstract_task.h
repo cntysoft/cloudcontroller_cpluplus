@@ -27,6 +27,7 @@ public:
    virtual ~AbstractTask();
 protected:
    void writeSubMsg(const QString &msg, TerminalColor color = TerminalColor::Default, bool underline = false, bool blink = false) const;
+   void exitTaskThread(int exitCode);
 protected:
    AbstractTaskContainer* m_taskContainer;
    const TaskMeta& m_invokeMeta;

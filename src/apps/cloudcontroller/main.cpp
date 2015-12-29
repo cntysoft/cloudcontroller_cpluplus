@@ -21,12 +21,13 @@ int main(int argc, char *argv[])
 {
    try{
       CloudControllerApplication app(argc, argv);
-      app.ensureImportantDir();
-      app.watchImportantSignal();
-      CommandRunner cmdrunner(app);
-      QTimer::singleShot(0, Qt::PreciseTimer, [&cmdrunner]{
-         cmdrunner.run();
-      });
+//      app.ensureImportantDir();
+//      app.watchImportantSignal();
+//      CommandRunner cmdrunner(app);
+//      QTimer::singleShot(0, Qt::PreciseTimer, [&cmdrunner]{
+//         cmdrunner.run();
+//      });
+      app.connectToServer();
       return app.exec();
    }catch(const ErrorInfo& errorInfo){
       QString str(errorInfo.toString());

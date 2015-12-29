@@ -5,7 +5,7 @@
 #include "shell/abstract_task_container.h"
 
 #include "corelib/network/rpc/invoke_meta.h"
-
+#include <QThread>
 namespace cloudcontroller{
 namespace task{
 namespace upgrademgr{
@@ -20,13 +20,10 @@ ListRepo::ListRepo(AbstractTaskContainer *taskContainer, const cclib::shell::Tas
 
 void ListRepo::run()
 {
+   //qDebug() << QThread::currentThreadId();
    QSharedPointer<ApiInvoker>& apiInvoker = getApiInvoker();
    ApiInvokeRequest request("meta", "ls");
-   int i = 0;
-   while(i < 3){
-      apiInvoker->request(request);
-      i++;
-   }
+   apiInvoker->request(request);
 }
 
 }//softwarerepo

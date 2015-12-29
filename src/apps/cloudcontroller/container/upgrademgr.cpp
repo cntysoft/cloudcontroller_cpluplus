@@ -24,8 +24,7 @@ using cclib::shell::TaskMeta;
 USE_SOFTWARE_REPO_TASK_LIST
 
 UpgradeMgr::UpgradeMgr(TaskLoop& loop)
-   :AbstractTaskContainer("UpgradeMgr", loop),
-     m_client(new QTcpSocket)
+   :AbstractTaskContainer("UpgradeMgr", loop)
 {
    m_containerPs = "upgrademgr >> ";
    initUsage();
@@ -78,6 +77,7 @@ bool UpgradeMgr::dispatchBuildInTask(const TaskMeta& meta)
 
 void UpgradeMgr::loadHandler(const QMap<QString, QString> &invokeArgs)
 {
+   m_client.reset(new QTcpSocket);
    QString host;
    int port;
    Settings &settings = m_app.getSettings();
@@ -100,6 +100,9 @@ void UpgradeMgr::loadHandler(const QMap<QString, QString> &invokeArgs)
       writeSubMsg(QString("连接服务器成功 [%1:%2]").arg(host).arg(port));
       AbstractTaskContainer::loadHandler(invokeArgs);
    }
+   QObject::connect(m_client.data(), &QTcpSocket::readyRead, this, [=](){
+      qDebug() << "adadasdas";
+   });
 }
 
 void UpgradeMgr::unloadHandler()

@@ -99,16 +99,19 @@ bool Global::dispatchBuildInTask(const TaskMeta& meta)
 void Global::showVersionTask(const TaskMeta&)
 {
    Terminal::writeText(QString("v%1\n").arg(CLOUD_CONTROLLER_VERSION).toLocal8Bit(), TerminalColor::Cyan);
+   exitTaskThread(0);
 }
 
 void Global::showHelpTask(const TaskMeta&)
 {
    printUsage();
+   exitTaskThread(0);
 }
 
 void Global::quitTask(const TaskMeta&)
 {
    m_taskLoop.exitRequest();
+   exitTaskThread(0);
 }
 
 }//container

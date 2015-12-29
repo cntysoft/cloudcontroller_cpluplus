@@ -6,7 +6,7 @@ Product
    targetName : "cloudcontroler"
    Depends { 
       name: "Qt"; 
-      submodules: ["core"]
+      submodules: ["core", "network"]
    }
    Depends { name:"corelib"}
    Depends { name:"cpp"}
@@ -51,15 +51,17 @@ Product
       name: "shell"
       prefix: name+"/"
       files:[
-         "abstract_task.cpp",
-         "abstract_task.h",
-         "abstract_task_container.cpp",
-         "abstract_task_container.h",
-         "abstract_task_loop.cpp",
-         "abstract_task_loop.h",
-         "task_meta.cpp",
-         "task_meta.h",
-      ]
+           "abstract_task.cpp",
+           "abstract_task.h",
+           "abstract_task_container.cpp",
+           "abstract_task_container.h",
+           "abstract_task_loop.cpp",
+           "abstract_task_loop.h",
+           "task_meta.cpp",
+           "task_meta.h",
+           "task_runner_thread.cpp",
+           "task_runner_thread.h",
+       ]
    }
    
    Group {

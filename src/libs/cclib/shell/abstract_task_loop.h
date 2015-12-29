@@ -4,6 +4,7 @@
 #include <QMap>
 #include <QPair>
 #include <QString>
+#include <QObject>
 
 #include <termios.h>
 #include <unistd.h>
@@ -28,8 +29,9 @@ using sn::corelib::History;
 
 class AbstractTaskContainer;
 
-class CC_LIB_EXPORT AbstractTaskLoop
+class CC_LIB_EXPORT AbstractTaskLoop : QObject
 {
+   Q_OBJECT
    Q_DISABLE_COPY(AbstractTaskLoop)
 public:
    enum class SpecialKeyName

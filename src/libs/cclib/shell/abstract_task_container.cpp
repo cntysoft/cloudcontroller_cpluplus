@@ -9,6 +9,7 @@
 #include "task_meta.h"
 #include "abstract_task.h"
 #include "abstract_task_loop.h"
+#include "task_runner_thread.h"
 
 namespace cclib{
 namespace shell{
@@ -22,7 +23,9 @@ AbstractTaskContainer::AbstractTaskContainer(const QString& name, AbstractTaskLo
    : m_name(name),
      m_taskLoop(loop),
      m_app(*Application::instance())
-{}
+{
+   m_taskRunnerThread = new TaskRunnerThread(this);
+}
 
 const QString& AbstractTaskContainer::getName()
 {
@@ -47,15 +50,15 @@ void AbstractTaskContainer::run(const QString& command)
    meta.setCategory(routeMatch.getParam("category"));
    meta.setName(routeMatch.getParam("name"));
    meta.setTaskArgs(routeMatch.getParams());
-   try{
-      runTask(meta);
-   }catch(ErrorInfo errorInfo){
-      QString str(errorInfo.toString());
-      if(str.size() > 0){
-         str += '\n';
-         Terminal::writeText(str.toLocal8Bit(), TerminalColor::Red);
-      }
-   }
+   m_taskRunnerThread->setTaskMeta(meta);
+   m_taskRunnerThread->start();
+   m_taskRunnerThread->wait();
+   //咱们不关心wait的结果
+}
+
+void AbstractTaskContainer::exitTaskThread(int exitCode)
+{
+   m_taskRunnerThread->exit(exitCode);
 }
 
 void AbstractTaskContainer::runTask(const TaskMeta &meta)
@@ -74,6 +77,11 @@ void AbstractTaskContainer::printUsage()const
       UsageTextItemType item(iterator.next());
       Terminal::writeText(item.first.toLocal8Bit(), item.second);
    }
+}
+
+TaskRunnerThread& AbstractTaskContainer::getTaskRunnerThread()
+{
+   return *m_taskRunnerThread;
 }
 
 void AbstractTaskContainer::addUsageText(const QString& text, TerminalColor color)
@@ -114,7 +122,9 @@ void AbstractTaskContainer::unloadHandler()
 }
 
 AbstractTaskContainer::~AbstractTaskContainer()
-{}
+{
+   delete m_taskRunnerThread;
+}
 
 }//shell
 }//cclib

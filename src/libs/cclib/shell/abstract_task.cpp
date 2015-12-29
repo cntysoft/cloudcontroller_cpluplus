@@ -2,6 +2,7 @@
 #include "corelib/io/terminal.h"
 
 #include "shell/abstract_task_container.h"
+#include "task_runner_thread.h"
 
 namespace cclib{
 namespace shell{
@@ -25,6 +26,12 @@ void AbstractTask::writeSubMsg(const QString& msg, TerminalColor color, bool und
 AbstractTaskContainer* AbstractTask::getTaskContainer()
 {
    return m_taskContainer;
+}
+
+void AbstractTask::exitTaskThread(int exitCode)
+{
+   TaskRunnerThread& taskRunnerThread = m_taskContainer->getTaskRunnerThread();
+   taskRunnerThread.exit(exitCode);
 }
 
 AbstractTask::~AbstractTask()

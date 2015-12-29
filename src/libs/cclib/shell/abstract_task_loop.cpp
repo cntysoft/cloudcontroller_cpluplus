@@ -5,6 +5,7 @@
 #include <QRegularExpressionMatch>
 #include <QList>
 #include <QChar>
+#include <QThread>
 
 #include <iostream>
 #include <sys/select.h>
@@ -19,7 +20,6 @@
 
 #include "abstract_task_container.h"
 #include "abstract_task_loop.h"
-
 
 namespace cclib{
 namespace shell{
@@ -146,6 +146,7 @@ void AbstractTaskLoop::run()
 void AbstractTaskLoop::runCommand(const QString &command)
 {
    try{
+      //qDebug() << "main " <<QThread::currentThreadId();
       m_currentTaskContainer->run(command);
    }catch(ErrorInfo errorInfo){
       Terminal::writeText(errorInfo.toString().toLocal8Bit(), TerminalColor::Red);
