@@ -58,6 +58,7 @@ void Application::watchImportantSignal()
    sa.sa_flags = SA_RESTART;
    sa.sa_handler = [](int sig)->void{
       Application::instance()->setCatchedSignalNumber(sig);
+      qDebug() << "catche";
    };
    if(sigaction(SIGINT, &sa, 0) != 0){
       throw ErrorInfo(QString("sigaction failed errno : %1").arg(errno));

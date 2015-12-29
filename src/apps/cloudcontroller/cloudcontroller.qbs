@@ -14,6 +14,8 @@ CloudControllerApplication
         "command_runner.h",
         "const.h",
         "main.cpp",
+        "thread.cpp",
+        "thread.h",
     ]
    
    Group {
