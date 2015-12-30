@@ -14,7 +14,6 @@ public:
    Application(int &argc, char **argv);
 public:
    void watchImportantSignal();
-   void connectToServer();
 public:
    virtual ~Application();
    virtual Settings::CfgInitializerFnType getDefaultCfgInitializerFn();

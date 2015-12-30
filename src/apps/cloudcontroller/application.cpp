@@ -31,19 +31,6 @@ Settings::CfgInitializerFnType Application::getDefaultCfgInitializerFn()
    return init_defualt_cfg;
 }
 
-void Application::connectToServer()
-{
-//      TaskRunnerWorker *worker = new TaskRunnerWorker();
-//      QThread *thread = new QThread;
-//      worker->moveToThread(thread);
-//      QObject::connect(this, &Application::beginTaskWorker, worker, &TaskRunnerWorker::beginRunTask);
-//      QObject::connect(thread, &QThread::finished, worker, &TaskRunnerWorker::deleteLater);
-//      thread->start();
-//      emit beginTaskWorker();
-//      thread->wait();
-
-}
-
 void Application::watchImportantSignal()
 {
    struct sigaction sa;
