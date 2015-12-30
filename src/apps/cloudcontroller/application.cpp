@@ -1,6 +1,7 @@
 #include <csignal>
 #include <cerrno>
 #include <QDebug>
+#include <QThread>
 
 #include "application.h"
 
@@ -9,10 +10,13 @@
 #include <QDataStream>
 #include "corelib/network/rpc/invoke_meta.h"
 
+#include "shell/task_runner_worker.h"
+
 namespace cloudcontroller{
 
 using sn::corelib::ErrorInfo;
 using sn::corelib::network::ApiInvokeRequest;
+using cclib::shell::TaskRunnerWorker;
 
 extern void init_defualt_cfg(Settings &settings);
 
@@ -29,26 +33,15 @@ Settings::CfgInitializerFnType Application::getDefaultCfgInitializerFn()
 
 void Application::connectToServer()
 {
-   QTcpSocket* client = new QTcpSocket;
-   connect(client, &QTcpSocket::connected, this, [=](){
-      qDebug() << "connected";
-      int i = 0;
-      while(i < 3){
-         ApiInvokeRequest request("meta", "ls");
-         QDataStream out(client);
-         out << request;
-         client->write("\r\n");
-         client->flush();
-         i++;
-      }
-      
-   });
-  
-   
-   connect(client, &QTcpSocket::readyRead, this, [=](){
-      qDebug() << client->readAll();
-   });
-   client->connectToHost("127.0.0.1", 7777);
+//      TaskRunnerWorker *worker = new TaskRunnerWorker();
+//      QThread *thread = new QThread;
+//      worker->moveToThread(thread);
+//      QObject::connect(this, &Application::beginTaskWorker, worker, &TaskRunnerWorker::beginRunTask);
+//      QObject::connect(thread, &QThread::finished, worker, &TaskRunnerWorker::deleteLater);
+//      thread->start();
+//      emit beginTaskWorker();
+//      thread->wait();
+
 }
 
 void Application::watchImportantSignal()
@@ -58,7 +51,6 @@ void Application::watchImportantSignal()
    sa.sa_flags = SA_RESTART;
    sa.sa_handler = [](int sig)->void{
       Application::instance()->setCatchedSignalNumber(sig);
-      qDebug() << "catche";
    };
    if(sigaction(SIGINT, &sa, 0) != 0){
       throw ErrorInfo(QString("sigaction failed errno : %1").arg(errno));

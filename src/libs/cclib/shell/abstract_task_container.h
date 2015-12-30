@@ -6,6 +6,7 @@
 #include <QList>
 #include <QMap>
 #include <QObject>
+#include <QThread>
 
 #include "corelib/io/terminal.h"
 #include "corelib/command/route_stack.h"
@@ -27,6 +28,7 @@ class TaskRunnerThread;
 
 class CC_LIB_EXPORT AbstractTaskContainer : public QObject
 {
+   Q_OBJECT
    Q_DISABLE_COPY(AbstractTaskContainer)
 public:
    using UsageTextItemType = QPair<QString, TerminalColor>;
@@ -38,7 +40,7 @@ public:
    void run(const QString& command);
    AbstractTaskLoop& getTaskLoop();
    void writeSubMsg(const QString& msg);
-   TaskRunnerThread& getTaskRunnerThread();
+   QThread& getTaskRunnerThread();
 public:
    virtual void runTask(const TaskMeta& meta);
    virtual void loadHandler(const QMap<QString, QString>& invokeArgs = QMap<QString, QString>());
@@ -48,6 +50,8 @@ protected:
    void exitTaskThread(int exitCode);
    void addUsageText(const QString& text, TerminalColor color = TerminalColor::Default);
    void addTaskRoute(const QString& name, const QString& route, int priority = 1, const QMap<QString, QString>& defaultParams = QMap<QString, QString>());
+signals:
+   void beginTaskWorker();
 protected:
    TaskPoolType m_taskRegisterPool;
    QList<UsageTextItemType> m_usageTextPool;
@@ -57,7 +61,7 @@ protected:
    QString m_containerPs;
    QString m_psBackup;
    Application& m_app;
-   TaskRunnerThread *m_taskRunnerThread;
+   QThread m_taskRunnerThread;
 };
 
 }//shell

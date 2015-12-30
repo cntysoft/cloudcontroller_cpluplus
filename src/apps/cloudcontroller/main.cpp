@@ -11,32 +11,23 @@
 
 #include "application.h"
 #include "command_runner.h"
-#include "thread.h"
+
 using CloudControllerApplication = cloudcontroller::Application;
 using CommandRunner = cloudcontroller::CommandRunner;
 using ErrorInfo = sn::corelib::ErrorInfo;
 using Terminal = sn::corelib::Terminal;
 using TerminalColor = sn::corelib::TerminalColor;
+
 int main(int argc, char *argv[])
 {
    try{
       CloudControllerApplication app(argc, argv);
-//      app.ensureImportantDir();
-//      app.watchImportantSignal();
-//      CommandRunner cmdrunner(app);
-//      QTimer::singleShot(0, Qt::PreciseTimer, [&cmdrunner]{
-////         cmdrunner.run();
-         
-        
-//      });
-      TaskRunnerThread *thread = new TaskRunnerThread;
-//      QObject::connect(thread, &TaskRunnerThread::finished, &hand, &HandlerCls::dataReady);
-      thread->moveToThread(thread);
-      thread->start();
-      thread->wait();
-      qDebug() << "main"<< QThread::currentThreadId();
-      qDebug() << "main";
-      //app.connectToServer();
+      app.ensureImportantDir();
+      app.watchImportantSignal();
+      CommandRunner cmdrunner(app);
+      QTimer::singleShot(0, Qt::PreciseTimer, [&cmdrunner]{
+         cmdrunner.run();
+      });
       return app.exec();
    }catch(const ErrorInfo& errorInfo){
       QString str(errorInfo.toString());

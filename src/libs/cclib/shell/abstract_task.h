@@ -2,6 +2,7 @@
 #define CLOUD_CONTROLLER_LIB_SHELL_ABSTRACT_TASK_H
 
 #include <QString>
+#include <QObject>
 
 #include "corelib/io/terminal.h"
 #include "corelib/kernel/application.h"
@@ -16,7 +17,7 @@ using sn::corelib::Application;
 class AbstractTaskContainer;
 class TaskMeta;
 
-class CC_LIB_EXPORT AbstractTask
+class CC_LIB_EXPORT AbstractTask : public QObject
 {
    Q_DISABLE_COPY(AbstractTask)
 public:

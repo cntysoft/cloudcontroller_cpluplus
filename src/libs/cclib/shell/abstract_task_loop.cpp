@@ -146,7 +146,6 @@ void AbstractTaskLoop::run()
 void AbstractTaskLoop::runCommand(const QString &command)
 {
    try{
-      //qDebug() << "main " <<QThread::currentThreadId();
       m_currentTaskContainer->run(command);
    }catch(ErrorInfo errorInfo){
       Terminal::writeText(errorInfo.toString().toLocal8Bit(), TerminalColor::Red);

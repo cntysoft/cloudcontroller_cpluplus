@@ -9,6 +9,7 @@ using BaseApplication = sn::corelib::Application;
 using Settings = sn::corelib::Settings;
 class Application : public BaseApplication
 {
+   Q_OBJECT
 public:
    Application(int &argc, char **argv);
 public:
@@ -17,6 +18,8 @@ public:
 public:
    virtual ~Application();
    virtual Settings::CfgInitializerFnType getDefaultCfgInitializerFn();
+signals:
+   void beginTaskWorker();
 };
 
 }//cloudcontroller

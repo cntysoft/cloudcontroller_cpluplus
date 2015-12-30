@@ -9,7 +9,8 @@
 #include "task_meta.h"
 #include "abstract_task.h"
 #include "abstract_task_loop.h"
-#include "task_runner_thread.h"
+#include "task_runner_worker.h"
+
 
 namespace cclib{
 namespace shell{
@@ -24,7 +25,6 @@ AbstractTaskContainer::AbstractTaskContainer(const QString& name, AbstractTaskLo
      m_taskLoop(loop),
      m_app(*Application::instance())
 {
-   m_taskRunnerThread = new TaskRunnerThread(this);
 }
 
 const QString& AbstractTaskContainer::getName()
@@ -50,15 +50,30 @@ void AbstractTaskContainer::run(const QString& command)
    meta.setCategory(routeMatch.getParam("category"));
    meta.setName(routeMatch.getParam("name"));
    meta.setTaskArgs(routeMatch.getParams());
-   m_taskRunnerThread->setTaskMeta(meta);
-   m_taskRunnerThread->start();
-   m_taskRunnerThread->wait();
+//   TaskRunnerWorker *worker = new TaskRunnerWorker(this);
+//   worker->setTaskMeta(meta);
+////   qDebug() << "thread" << QThread::currentThreadId();
+//   worker->moveToThread(&m_taskRunnerThread);
+//   QObject::connect(this, &AbstractTaskContainer::beginTaskWorker, worker, &TaskRunnerWorker::beginRunTask);
+//   QObject::connect(&m_taskRunnerThread, &QThread::finished, worker, &TaskRunnerWorker::deleteLater);
+//   m_taskRunnerThread.start();
+//   emit beginTaskWorker();
+//   m_taskRunnerThread.wait();
    //咱们不关心wait的结果
+   try{
+      runTask(meta);
+   }catch(ErrorInfo errorInfo){
+      QString str(errorInfo.toString());
+      if(str.size() > 0){
+         str += '\n';
+         Terminal::writeText(str.toLocal8Bit(), TerminalColor::Red);
+      }
+   }
 }
 
 void AbstractTaskContainer::exitTaskThread(int exitCode)
 {
-   m_taskRunnerThread->exit(exitCode);
+   m_taskRunnerThread.exit(exitCode);
 }
 
 void AbstractTaskContainer::runTask(const TaskMeta &meta)
@@ -79,9 +94,9 @@ void AbstractTaskContainer::printUsage()const
    }
 }
 
-TaskRunnerThread& AbstractTaskContainer::getTaskRunnerThread()
+QThread& AbstractTaskContainer::getTaskRunnerThread()
 {
-   return *m_taskRunnerThread;
+   return m_taskRunnerThread;
 }
 
 void AbstractTaskContainer::addUsageText(const QString& text, TerminalColor color)
@@ -123,7 +138,7 @@ void AbstractTaskContainer::unloadHandler()
 
 AbstractTaskContainer::~AbstractTaskContainer()
 {
-   delete m_taskRunnerThread;
+//   delete m_taskRunnerThread;
 }
 
 }//shell

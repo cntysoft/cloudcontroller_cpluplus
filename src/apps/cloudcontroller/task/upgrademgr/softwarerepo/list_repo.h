@@ -15,9 +15,12 @@ using cclib::shell::TaskMeta;
 
 class ListRepo : public AbstractTask
 {
+   Q_OBJECT
 public:
    ListRepo(AbstractTaskContainer* taskContainer, const TaskMeta& meta);
    virtual void run();
+signals:
+   void beginTaskWorker();
 };
 
 }//softwarerepo

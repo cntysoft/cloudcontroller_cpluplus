@@ -22,6 +22,7 @@ using sn::corelib::network::ApiInvoker;
 
 class UpgradeMgr : public AbstractTaskContainer
 {
+   Q_OBJECT
    Q_DISABLE_COPY(UpgradeMgr)
 public:
    UpgradeMgr(TaskLoop& loop);
@@ -44,6 +45,8 @@ protected:
 protected:
    QSharedPointer<ApiInvoker> m_apiInvoker;
    QSharedPointer<QTcpSocket> m_client;
+   QMap<QString, QString> m_invokeArgs;
+   bool m_connectedMark = false;
 };
 
 

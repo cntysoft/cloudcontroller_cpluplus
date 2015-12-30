@@ -1,5 +1,6 @@
 #include <QString>
 #include <QDebug>
+#include <QThread>
 
 #include "const.h"
 #include "corelib/io/terminal.h"
@@ -77,48 +78,21 @@ bool UpgradeMgr::dispatchBuildInTask(const TaskMeta& meta)
 
 void UpgradeMgr::loadHandler(const QMap<QString, QString> &invokeArgs)
 {
-   m_client.reset(new QTcpSocket);
-   QString host;
-   int port;
-   Settings &settings = m_app.getSettings();
-   if(invokeArgs.contains("host")){
-      host = invokeArgs.value("host");
-   }else{
-      //获取配置文件
-      host = settings.getValue("upgrademgrHost", CC_CFG_GROUP_UPGRADEMGR).toString();
-   }
-   if(invokeArgs.contains("port")){
-      port = invokeArgs.value("port").toInt();
-   }else{
-      port = settings.getValue("upgrademgrPort", CC_CFG_GROUP_UPGRADEMGR).toInt();
-   }
+   m_invokeArgs = invokeArgs;
+   QSharedPointer<ApiInvoker>& invoker = getApiInvoker();
    writeSubMsg("正在连接服务器 ... ");
-   if(!connectToServer(host, port)){
-      m_taskLoop.enterGlobalTaskContainer();
-      throw ErrorInfo(QString("连接服务器失败 : %1").arg(getTcpConnectionErrorString()));
-   }else{
-      writeSubMsg(QString("连接服务器成功 [%1:%2]").arg(host).arg(port));
-      AbstractTaskContainer::loadHandler(invokeArgs);
+   invoker->connectToServer();
+   while(!m_connectedMark){
+      QThread::usleep(100);
    }
-   QObject::connect(m_client.data(), &QTcpSocket::readyRead, this, [=](){
-      qDebug() << "adadasdas";
-   });
+   m_connectedMark = false;
 }
 
 void UpgradeMgr::unloadHandler()
 {
    writeSubMsg("正在断开连接 ... ");
-   m_client->disconnectFromHost();
-}
-
-bool UpgradeMgr::connectToServer(const QString &host, int port)
-{
-   m_client->connectToHost(host, port);
-   if(m_client->waitForConnected()){
-      return true;
-   }else{
-      return false;
-   }
+   QSharedPointer<ApiInvoker>& invoker = getApiInvoker();
+   invoker->disconnectFromServer();
 }
 
 bool UpgradeMgr::isTcpConnectionValid()
@@ -140,8 +114,27 @@ QString UpgradeMgr::getTcpConnectionErrorString()
 
 QSharedPointer<ApiInvoker>& UpgradeMgr::getApiInvoker()
 {
-   if(isTcpConnectionValid()){
-      m_apiInvoker.reset(new ApiInvoker(m_client));
+   if(m_apiInvoker.isNull()){
+      QString host;
+      int port;
+      Settings &settings = m_app.getSettings();
+      if(m_invokeArgs.contains("host")){
+         host = m_invokeArgs.value("host");
+      }else{
+         //获取配置文件
+         host = settings.getValue("upgrademgrHost", CC_CFG_GROUP_UPGRADEMGR).toString();
+      }
+      if(m_invokeArgs.contains("port")){
+         port = m_invokeArgs.value("port").toInt();
+      }else{
+         port = settings.getValue("upgrademgrPort", CC_CFG_GROUP_UPGRADEMGR).toInt();
+      }
+      m_apiInvoker.reset(new ApiInvoker(host, port));
+      connect(m_apiInvoker.data(), &ApiInvoker::connectedToServerSignal, this, [&, host, port](){
+         writeSubMsg(QString("连接服务器成功 [%1:%2]").arg(host).arg(port));
+         m_connectedMark = true;
+         AbstractTaskContainer::loadHandler(m_invokeArgs);
+      }, Qt::DirectConnection);
    }
    return m_apiInvoker;
 }

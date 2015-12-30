@@ -60,7 +60,7 @@ void TaskRunnerThread::run()
             m_socket->flush();
             i++;
          }
-      });
+      }, Qt::QueuedConnection);
    
    //connect(m_socket, &QTcpSocket::connected, this, &TaskRunnerThread::f);
       int i = 0;
@@ -72,7 +72,7 @@ void TaskRunnerThread::run()
          qDebug() << d;
          qDebug() << d.size();
          exit(0);
-      });
+      }, Qt::QueuedConnection);
        QTimer::singleShot(0, this, &TaskRunnerThread::process);
    //m_socket->connectToHost("127.0.0.1", 7777);
    int status = exec();

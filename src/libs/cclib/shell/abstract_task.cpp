@@ -1,3 +1,5 @@
+#include <QThread>
+
 #include "abstract_task.h"
 #include "corelib/io/terminal.h"
 
@@ -30,7 +32,7 @@ AbstractTaskContainer* AbstractTask::getTaskContainer()
 
 void AbstractTask::exitTaskThread(int exitCode)
 {
-   TaskRunnerThread& taskRunnerThread = m_taskContainer->getTaskRunnerThread();
+   QThread& taskRunnerThread = m_taskContainer->getTaskRunnerThread();
    taskRunnerThread.exit(exitCode);
 }
 
