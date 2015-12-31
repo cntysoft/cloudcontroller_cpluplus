@@ -6,12 +6,14 @@
 #include <QList>
 #include <QChar>
 #include <QThread>
+#include <QTextStream>
 
 #include <iostream>
 #include <sys/select.h>
 #include <sys/fcntl.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+#include <signal.h>
 
 #include "corelib/io/terminal.h"
 #include "corelib/kernel/errorinfo.h"
@@ -166,12 +168,20 @@ void AbstractTaskLoop::readCommand(QString &command)
    char buf[128];
    memset(buf, ASCII_NUL, 128);
    int nfds = 1;
+   int catchedSigNum = -1;
    FD_ZERO(&readFds);
    FD_SET(STDIN_FILENO, &readFds);
 LABEL_AGAIN:
    int ret = select(nfds, &readFds, NULL, NULL, NULL);
    if(-1 == ret){
       if(errno == EINTR && isNeedRestartSelectCall()){
+         catchedSigNum = Application::instance()->getCatchedSignalNumber();
+         if(SIGUSR1 == catchedSigNum){
+            nfds = 1;
+            strcpy(buf, "\n");
+            FD_ZERO(&readFds);
+            goto LABEL_SKIP_CURRENT_INPUT;
+         }
          goto LABEL_AGAIN;
       }
       if(errno != EINTR){
@@ -180,6 +190,7 @@ LABEL_AGAIN:
          ::exit(Application::instance()->getCatchedSignalNumber());
       }
    }
+   LABEL_SKIP_CURRENT_INPUT:
    for(int fd = 0; fd < nfds; fd++){
       if(FD_ISSET(fd, &readFds)){
          read(STDIN_FILENO, &buf, 127);
@@ -197,6 +208,23 @@ LABEL_AGAIN:
                return;
             }
          }
+         goto LABEL_AGAIN;
+      }else if(catchedSigNum == SIGUSR1){
+         QString unit;
+         filterBuffer(buf, unit);
+         memset(buf, ASCII_NUL, 128);
+         if(!unit.isEmpty()){
+            SpecialKeyName keyType = getKeyTypeName(unit);
+            readUnitCycle(unit, keyType);
+            if(keyType == SpecialKeyName::ASCII_CODE && unit == "\n"){
+               command = m_cmdBuff.trimmed();
+               m_cmdBuff.clear();
+               m_insertPos = 0;
+               std::cout << "\n";
+               return;
+            }
+         }
+         catchedSigNum = -1;
          goto LABEL_AGAIN;
       }
    }

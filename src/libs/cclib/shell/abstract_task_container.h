@@ -41,6 +41,7 @@ public:
    AbstractTaskLoop& getTaskLoop();
    void writeSubMsg(const QString& msg);
    QThread& getTaskRunnerThread();
+   void exitCurrentCommandCycle();
 public:
    virtual void runTask(const TaskMeta& meta);
    virtual void loadHandler(const QMap<QString, QString>& invokeArgs = QMap<QString, QString>());

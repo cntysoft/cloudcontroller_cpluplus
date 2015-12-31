@@ -42,6 +42,9 @@ void Application::watchImportantSignal()
    if(sigaction(SIGINT, &sa, 0) != 0){
       throw ErrorInfo(QString("sigaction failed errno : %1").arg(errno));
    }
+   if(sigaction(SIGUSR1, &sa, 0) != 0){
+      throw ErrorInfo(QString("sigaction failed errno : %1").arg(errno));
+   }
 }
 
 Application::~Application()

@@ -1,9 +1,13 @@
 #include <QRegularExpression>
 #include <QScopedPointer>
 
+#include <signal.h>
+#include <unistd.h>
+
 #include "corelib/kernel/errorinfo.h"
 #include "corelib/command/route_item.h"
 #include "corelib/command/route_match_result.h"
+#include "corelib/kernel/application.h"
 
 #include "abstract_task_container.h"
 #include "task_meta.h"
@@ -42,6 +46,9 @@ void AbstractTaskContainer::run(const QString& command)
    TaskMeta meta;
    RouteMatchResult routeMatch = m_router.match(command.split(QRegularExpression("\\s+")));
    if(!routeMatch.getStatus()){
+      if(SIGUSR1 == Application::instance()->getCatchedSignalNumber()){
+         throw ErrorInfo();
+      }
       Terminal::writeText("invalid command\n", TerminalColor::Red);
       printUsage();
       throw ErrorInfo();
@@ -50,16 +57,6 @@ void AbstractTaskContainer::run(const QString& command)
    meta.setCategory(routeMatch.getParam("category"));
    meta.setName(routeMatch.getParam("name"));
    meta.setTaskArgs(routeMatch.getParams());
-//   TaskRunnerWorker *worker = new TaskRunnerWorker(this);
-//   worker->setTaskMeta(meta);
-////   qDebug() << "thread" << QThread::currentThreadId();
-//   worker->moveToThread(&m_taskRunnerThread);
-//   QObject::connect(this, &AbstractTaskContainer::beginTaskWorker, worker, &TaskRunnerWorker::beginRunTask);
-//   QObject::connect(&m_taskRunnerThread, &QThread::finished, worker, &TaskRunnerWorker::deleteLater);
-//   m_taskRunnerThread.start();
-//   emit beginTaskWorker();
-//   m_taskRunnerThread.wait();
-   //咱们不关心wait的结果
    try{
       runTask(meta);
    }catch(ErrorInfo errorInfo){
@@ -69,6 +66,15 @@ void AbstractTaskContainer::run(const QString& command)
          Terminal::writeText(str.toLocal8Bit(), TerminalColor::Red);
       }
    }
+}
+
+void AbstractTaskContainer::exitCurrentCommandCycle()
+{
+   if(m_name == "Global"){
+      return;
+   }
+   m_taskLoop.enterGlobalTaskContainer();
+   kill(getpid(), SIGUSR1);
 }
 
 void AbstractTaskContainer::exitTaskThread(int exitCode)

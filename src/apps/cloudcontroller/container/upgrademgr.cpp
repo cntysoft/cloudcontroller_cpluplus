@@ -17,6 +17,7 @@ namespace cloudcontroller{
 namespace container{
 
 using sn::corelib::TerminalColor;
+using sn::corelib::Terminal;
 using sn::corelib::Settings;
 using sn::corelib::ErrorInfo;
 using cclib::shell::AbstractTask;
@@ -134,6 +135,16 @@ QSharedPointer<ApiInvoker>& UpgradeMgr::getApiInvoker()
          writeSubMsg(QString("连接服务器成功 [%1:%2]").arg(host).arg(port));
          m_connectedMark = true;
          AbstractTaskContainer::loadHandler(m_invokeArgs);
+      }, Qt::DirectConnection);
+      connect(m_apiInvoker.data(), &ApiInvoker::connectErrorSignal, this, [&, host, port](ApiInvoker::ErrorType, const QString&){
+         writeSubMsg(QString("连接服务器失败 [%1:%2]").arg(host).arg(port));
+         m_connectedMark = true;
+         exitCurrentCommandCycle();
+      }, Qt::DirectConnection);
+      connect(m_apiInvoker.data(), &ApiInvoker::serverOfflineSignal, this, [&](){
+         Terminal::writeText("\n");
+         writeSubMsg(QString("服务器终止连接"));
+         exitCurrentCommandCycle();
       }, Qt::DirectConnection);
    }
    return m_apiInvoker;

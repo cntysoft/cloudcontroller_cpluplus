@@ -8,8 +8,10 @@
 
 #include "cclib/shell/abstract_task_container.h"
 #include "shell/task_loop.h"
+#include "shell/task_meta.h"
 
 #include "corelib/network/rpc/api_invoker.h"
+
 
 namespace cloudcontroller{
 namespace container{
@@ -41,7 +43,7 @@ protected:
    void initRouter();
       void initTaskPool();
 protected:
-   void quitTask(const TaskMeta& meta);
+   void quitTask(const TaskMeta& meta = TaskMeta());
 protected:
    QSharedPointer<ApiInvoker> m_apiInvoker;
    QSharedPointer<QTcpSocket> m_client;
