@@ -41,6 +41,8 @@ CloudControllerApplication
       name: "task"
       prefix: name+"/"
       files:[
+           "common/uploader.cpp",
+           "common/uploader.h",
            "global/enter_upgrademgr_task.cpp",
            "global/enter_upgrademgr_task.h",
            "upgrademgr/abstract_task.cpp",
