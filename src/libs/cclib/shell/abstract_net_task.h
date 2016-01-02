@@ -2,6 +2,7 @@
 #define CLOUD_CONTROLLER_LIB_SHELL_ABSTRACT_NET_TASK_H
 
 #include <QSharedPointer>
+#include <QPair>
 
 #include "abstract_task.h"
 #include "corelib/io/terminal.h"
@@ -29,6 +30,7 @@ protected:
    void waitForResponse(const ApiInvokeRequest &request);
 protected:
    QSharedPointer<ApiInvoker> m_apiInvoker;
+   QPair<int, bool> m_waitPair;
 };
 
 }//shell

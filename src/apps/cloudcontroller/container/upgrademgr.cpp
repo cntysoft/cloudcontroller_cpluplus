@@ -10,8 +10,10 @@
 #include "upgrademgr.h"
 #include "cclib/shell/task_meta.h"
 #include "cclib/shell/abstract_task.h"
+#include "cclib/shell/abstract_net_task.h"
 
 #include "task/upgrademgr/upgrademgr_task_repo.h"
+
 
 namespace cloudcontroller{
 namespace container{
@@ -20,6 +22,7 @@ using sn::corelib::TerminalColor;
 using sn::corelib::Terminal;
 using sn::corelib::Settings;
 using sn::corelib::ErrorInfo;
+using cclib::shell::AbstractNetTask;
 using cclib::shell::AbstractTask;
 using cclib::shell::TaskMeta;
 
@@ -37,7 +40,12 @@ UpgradeMgr::UpgradeMgr(TaskLoop& loop)
 void UpgradeMgr::runTask(const TaskMeta& meta)
 {
    if(!dispatchBuildInTask(meta)){
-      AbstractTaskContainer::runTask(meta);
+      QString key(meta.getContainer()+ '_' +meta.getCategory() + '_' + meta.getName());
+      Q_ASSERT_X(m_taskRegisterPool.contains(key), "AbstractTaskContainer::run()", QString("command : %1 is not exist").arg(key).toLatin1());
+      AbstractTask* (*initializer)(AbstractTaskContainer*, const TaskMeta&) = m_taskRegisterPool[key];
+      QScopedPointer<AbstractNetTask> task(static_cast<AbstractNetTask*>(initializer(this, meta)));
+      task->setApiInvoker(getApiInvoker());
+      task->run();
    }
 }
 
