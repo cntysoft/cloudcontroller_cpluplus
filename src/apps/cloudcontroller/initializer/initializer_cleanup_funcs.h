@@ -1,0 +1,10 @@
+#ifndef UPGRADEMGR_MASTER_INITIALIZER_CLEANUP_FUNCS_H
+#define UPGRADEMGR_MASTER_INITIALIZER_CLEANUP_FUNCS_H
+namespace cloudcontroller{
+
+void init_metatypes();
+
+}//cloudcontroller
+
+#endif // UPGRADEMGR_MASTER_INITIALIZER_CLEANUP_FUNCS_H
+

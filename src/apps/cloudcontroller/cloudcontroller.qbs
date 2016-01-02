@@ -71,4 +71,14 @@ CloudControllerApplication
            "default_cfg_initializer.cpp",
        ]
    }
+   
+   Group {
+      name: "initializer"
+      prefix: name+"/"
+      files:[
+           "global_initializer_and_cleanup.cpp",
+           "init_metatype.cpp",
+           "initializer_cleanup_funcs.h",
+       ]
+   }
 }

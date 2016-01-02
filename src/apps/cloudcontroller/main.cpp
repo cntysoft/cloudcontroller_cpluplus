@@ -8,6 +8,7 @@
 #include "corelib/command/route_match_result.h"
 #include "corelib/io/terminal.h"
 #include "corelib/kernel/errorinfo.h"
+#include "corelib/network/rpc/invoke_meta.h"
 
 #include "application.h"
 #include "command_runner.h"
@@ -17,10 +18,17 @@ using CommandRunner = cloudcontroller::CommandRunner;
 using ErrorInfo = sn::corelib::ErrorInfo;
 using Terminal = sn::corelib::Terminal;
 using TerminalColor = sn::corelib::TerminalColor;
+using sn::corelib::network::ApiInvokeResponse;
+
+//全局更新函数
+namespace cloudcontroller{
+void global_initializer();
+}//cloudcontroller
 
 int main(int argc, char *argv[])
 {
    try{
+      qAddPreRoutine(cloudcontroller::global_initializer);
       CloudControllerApplication app(argc, argv);
       app.ensureImportantDir();
       app.watchImportantSignal();

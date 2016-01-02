@@ -22,12 +22,15 @@ class CC_LIB_EXPORT AbstractNetTask : public AbstractTask
    Q_DISABLE_COPY(AbstractNetTask)
 public:
    AbstractNetTask(AbstractTaskContainer* taskContainer, const TaskMeta& meta);
+   ~AbstractNetTask();
 public:
    QSharedPointer<ApiInvoker>& getApiInvoker();
    AbstractNetTask& setApiInvoker(QSharedPointer<ApiInvoker> &apiInvoker);
 protected:
    void processErrorResponse(const ApiInvokeResponse &response);
    void waitForResponse(const ApiInvokeRequest &request);
+protected slots:
+   void responseArrivedHandler(const ApiInvokeResponse &response);
 protected:
    QSharedPointer<ApiInvoker> m_apiInvoker;
    QPair<int, bool> m_waitPair;

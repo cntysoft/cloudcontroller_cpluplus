@@ -1,4 +1,5 @@
 #include <QThread>
+#include <QDebug>
 
 #include "abstract_net_task.h"
 
@@ -27,6 +28,7 @@ QSharedPointer<ApiInvoker>& AbstractNetTask::getApiInvoker()
 AbstractNetTask& AbstractNetTask::setApiInvoker(QSharedPointer<ApiInvoker> &apiInvoker)
 {
    m_apiInvoker = apiInvoker;
+   QObject::connect(m_apiInvoker.data(), &ApiInvoker::responseArrived, this, &AbstractNetTask::responseArrivedHandler, Qt::DirectConnection);
    return *this;
 }
 
@@ -35,10 +37,21 @@ void AbstractNetTask::waitForResponse(const ApiInvokeRequest &request)
    m_waitPair.first = request.getSerial();
    m_waitPair.second = false;
    int current = 0;
-   while(!m_waitPair.second && current < 15000){
-      QThread::usleep(200);
+   while(!m_waitPair.second && current < 10000){
+      QThread::msleep(200);
       current += 200;
    }
+}
+
+void AbstractNetTask::responseArrivedHandler(const ApiInvokeResponse &response)
+{
+   m_waitPair.first = response.getSerial();
+   m_waitPair.second = true;
+}
+
+AbstractNetTask::~AbstractNetTask()
+{
+   QObject::disconnect(m_apiInvoker.data(), &ApiInvoker::responseArrived, this, &AbstractNetTask::responseArrivedHandler);
 }
 
 }//shell
