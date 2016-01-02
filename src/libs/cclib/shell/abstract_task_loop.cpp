@@ -220,7 +220,6 @@ LABEL_AGAIN:
                command = m_cmdBuff.trimmed();
                m_cmdBuff.clear();
                m_insertPos = 0;
-               std::cout << "\n";
                return;
             }
          }

@@ -1,0 +1,4 @@
+#ifndef ABSTRACT_NET_TASK_H
+#define ABSTRACT_NET_TASK_H
+
+#endif // ABSTRACT_NET_TASK_H

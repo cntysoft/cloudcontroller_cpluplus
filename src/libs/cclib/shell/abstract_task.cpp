@@ -1,4 +1,6 @@
 #include <QThread>
+#include <QPair>
+#include <QString>
 
 #include "abstract_task.h"
 #include "corelib/io/terminal.h"

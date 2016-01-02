@@ -82,6 +82,7 @@ void UpgradeMgr::loadHandler(const QMap<QString, QString> &invokeArgs)
    m_invokeArgs = invokeArgs;
    QSharedPointer<ApiInvoker>& invoker = getApiInvoker();
    writeSubMsg("正在连接服务器 ... ");
+   m_activeDisconnected = false;
    invoker->connectToServer();
    while(!m_connectedMark){
       QThread::usleep(100);
@@ -91,9 +92,15 @@ void UpgradeMgr::loadHandler(const QMap<QString, QString> &invokeArgs)
 
 void UpgradeMgr::unloadHandler()
 {
-   writeSubMsg("正在断开连接 ... ");
+   if(m_activeDisconnected){
+      writeSubMsg("正在断开连接 ... ");
+   }
    QSharedPointer<ApiInvoker>& invoker = getApiInvoker();
    invoker->disconnectFromServer();
+   while(!m_disconnectedMark){
+      QThread::usleep(100);
+   }
+   m_disconnectedMark = false;
 }
 
 bool UpgradeMgr::isTcpConnectionValid()
@@ -139,12 +146,16 @@ QSharedPointer<ApiInvoker>& UpgradeMgr::getApiInvoker()
       connect(m_apiInvoker.data(), &ApiInvoker::connectErrorSignal, this, [&, host, port](ApiInvoker::ErrorType, const QString&){
          writeSubMsg(QString("连接服务器失败 [%1:%2]").arg(host).arg(port));
          m_connectedMark = true;
+         m_disconnectedMark = true;
          exitCurrentCommandCycle();
       }, Qt::DirectConnection);
       connect(m_apiInvoker.data(), &ApiInvoker::serverOfflineSignal, this, [&](){
-         Terminal::writeText("\n");
-         writeSubMsg(QString("服务器终止连接"));
-         exitCurrentCommandCycle();
+         m_disconnectedMark = true;
+         if(!m_activeDisconnected){
+            Terminal::writeText("\n");
+            writeSubMsg(QString("服务器终止连接"));
+            exitCurrentCommandCycle();
+         }
       }, Qt::DirectConnection);
    }
    return m_apiInvoker;
@@ -152,7 +163,8 @@ QSharedPointer<ApiInvoker>& UpgradeMgr::getApiInvoker()
 
 void UpgradeMgr::quitTask(const TaskMeta&)
 {
-   m_taskLoop.enterGlobalTaskContainer();
+   m_activeDisconnected = true;
+   exitCurrentCommandCycle();
 }
 
 }//container

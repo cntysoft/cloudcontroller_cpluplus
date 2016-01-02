@@ -41,7 +41,7 @@ protected:
    bool dispatchBuildInTask(const TaskMeta& meta);
    void initUsage();
    void initRouter();
-      void initTaskPool();
+   void initTaskPool();
 protected:
    void quitTask(const TaskMeta& meta = TaskMeta());
 protected:
@@ -49,6 +49,8 @@ protected:
    QSharedPointer<QTcpSocket> m_client;
    QMap<QString, QString> m_invokeArgs;
    bool m_connectedMark = false;
+   bool m_disconnectedMark = false;
+   bool m_activeDisconnected = false;
 };
 
 

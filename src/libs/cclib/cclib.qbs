@@ -51,6 +51,8 @@ Product
       name: "shell"
       prefix: name+"/"
       files:[
+           "abstract_net_task.cpp",
+           "abstract_net_task.h",
            "abstract_task.cpp",
            "abstract_task.h",
            "abstract_task_container.cpp",

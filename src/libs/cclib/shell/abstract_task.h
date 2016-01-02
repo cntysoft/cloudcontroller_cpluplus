@@ -6,6 +6,7 @@
 
 #include "corelib/io/terminal.h"
 #include "corelib/kernel/application.h"
+#include "corelib/network/rpc/invoke_meta.h"
 #include "global/global.h"
 
 namespace cclib{
@@ -13,6 +14,8 @@ namespace shell{
 
 using sn::corelib::TerminalColor;
 using sn::corelib::Application;
+using sn::corelib::network::ApiInvokeResponse;
+using sn::corelib::network::ApiInvokeRequest;
 
 class AbstractTaskContainer;
 class TaskMeta;
