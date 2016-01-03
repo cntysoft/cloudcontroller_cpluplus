@@ -52,7 +52,8 @@ void UpgradeMgr::runTask(const TaskMeta& meta)
 void UpgradeMgr::initUsage()
 {
    addUsageText("you can use commands as fowllow:\n", TerminalColor::LightGreen);
-   addUsageText("quit       exit upgrademgr task container\n");
+   addUsageText("list_software_repo       查看当前软件仓库里面的软件种类\n");
+   addUsageText("quit                     退出更新管理程序\n");
 }
 
 void UpgradeMgr::initRouter()

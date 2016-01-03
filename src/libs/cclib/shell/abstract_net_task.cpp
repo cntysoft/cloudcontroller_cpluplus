@@ -38,7 +38,7 @@ void AbstractNetTask::waitForResponse(const ApiInvokeRequest &request)
    m_waitPair.second = false;
    int current = 0;
    while(!m_waitPair.second && current < 10000){
-      QThread::msleep(200);
+      QThread::msleep(32);
       current += 200;
    }
 }
