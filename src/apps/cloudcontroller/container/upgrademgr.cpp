@@ -52,8 +52,9 @@ void UpgradeMgr::runTask(const TaskMeta& meta)
 void UpgradeMgr::initUsage()
 {
    addUsageText("you can use commands as fowllow:\n", TerminalColor::LightGreen);
-   addUsageText("list_software_repo       查看当前软件仓库里面的软件种类\n");
-   addUsageText("quit                     退出更新管理程序\n");
+   addUsageText("list_software_repo   查看当前软件仓库里面的软件种类\n");
+   addUsageText("upload_software --file=<需要上传的文件路径>   上传指定的软件到软件仓库\n");
+   addUsageText("quit   退出更新管理程序\n");
 }
 
 void UpgradeMgr::initRouter()
@@ -66,12 +67,20 @@ void UpgradeMgr::initRouter()
                    {"category", "SoftwareRepo"},
                    {"name", "ListRepo"}
                 });
+   addTaskRoute("softwarerepouploadsoftware", "upload_software --file=", 1, {
+                   {"category", "SoftwareRepo"},
+                   {"name", "UploadSoftware"}
+                });
 }
 
 void UpgradeMgr::initTaskPool()
 {
    m_taskRegisterPool.insert("UpgradeMgr_SoftwareRepo_ListRepo", [](AbstractTaskContainer* container, const TaskMeta& meta)->AbstractTask*{
       SoftwareRepoListRepoTask* task = new SoftwareRepoListRepoTask(container, meta);
+      return task;
+   });
+   m_taskRegisterPool.insert("UpgradeMgr_SoftwareRepo_UploadSoftware", [](AbstractTaskContainer* container, const TaskMeta& meta)->AbstractTask*{
+      SoftwareRepoUploadSoftware* task = new SoftwareRepoUploadSoftware(container, meta);
       return task;
    });
 }

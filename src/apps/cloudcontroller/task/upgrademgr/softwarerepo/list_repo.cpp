@@ -1,4 +1,3 @@
-#include <QDebug>
 #include <QSharedPointer>
 #include <QTcpSocket>
 #include <QDataStream>

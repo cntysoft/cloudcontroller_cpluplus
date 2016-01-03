@@ -1,5 +1,5 @@
-#ifndef CLOUD_CONTROLLER_TASK_UPGRADEMGR_SOFTWARE_REPO_LIST_REPO_H
-#define CLOUD_CONTROLLER_TASK_UPGRADEMGR_SOFTWARE_REPO_LIST_REPO_H
+#ifndef CLOUD_CONTROLLER_TASK_UPGRADEMGR_SOFTWARE_REPO_UPLOAD_SOFTWARE_H
+#define CLOUD_CONTROLLER_TASK_UPGRADEMGR_SOFTWARE_REPO_UPLOAD_SOFTWARE_H
 
 #include "cclib/shell/task_meta.h"
 #include "corelib/network/rpc/invoke_meta.h"
@@ -16,12 +16,10 @@ using cclib::shell::TaskMeta;
 using sn::corelib::network::ApiInvokeRequest;
 using sn::corelib::network::ApiInvokeResponse;
 
-class ListRepo : public AbstractNetTask
+class UploadSoftware : public AbstractNetTask
 {
-   Q_OBJECT
-   friend void ls_software_repo_callback(const ApiInvokeResponse &response, void* args);
 public:
-   ListRepo(AbstractTaskContainer* taskContainer, const TaskMeta& meta);
+   UploadSoftware(AbstractTaskContainer* taskContainer, const TaskMeta& meta);
    virtual void run();
 };
 
@@ -30,4 +28,4 @@ public:
 }//task
 }//cloudcontroller
 
-#endif // CLOUD_CONTROLLER_TASK_UPGRADEMGR_SOFTWARE_REPO_LIST_REPO_H
+#endif // CLOUD_CONTROLLER_TASK_UPGRADEMGR_SOFTWARE_REPO_UPLOAD_SOFTWARE_H

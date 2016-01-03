@@ -49,6 +49,8 @@ CloudControllerApplication
            "upgrademgr/abstract_task.h",
            "upgrademgr/softwarerepo/list_repo.cpp",
            "upgrademgr/softwarerepo/list_repo.h",
+           "upgrademgr/softwarerepo/upload_software.cpp",
+           "upgrademgr/softwarerepo/upload_software.h",
            "upgrademgr/upgrademgr_task_repo.h",
        ]
    }
