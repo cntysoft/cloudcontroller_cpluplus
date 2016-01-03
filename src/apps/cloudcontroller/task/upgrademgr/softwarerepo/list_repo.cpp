@@ -16,8 +16,6 @@ namespace task{
 namespace upgrademgr{
 namespace softwarerepo{
 
-using sn::corelib::network::ApiInvokeRequest;
-using sn::corelib::network::ApiInvokeResponse;
 using sn::corelib::network::ApiInvoker;
 using cclib::shell::TaskRunnerWorker;
 

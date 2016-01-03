@@ -17,6 +17,9 @@ using sn::corelib::network::ApiInvokeResponse;
 
 class Uploader : public AbstractNetTask
 {
+   Q_OBJECT
+protected:
+   friend void init_upload_handler(const ApiInvokeResponse &response, void* args);
 public:
    Uploader(AbstractTaskContainer *taskContainer, const TaskMeta &meta);
    Uploader& setFilename(const QString &filename);
@@ -24,8 +27,15 @@ public:
 public:
    virtual void run();
    virtual ~Uploader();
+protected:
+   void startUploadProcess();
+protected:
+   void emitUploadErrorSignal(int errorCode, const QString errorString);
 signals:
-   void beginUploadSignal(const QString &filename);
+   void beginUploadSignal();
+   void uploadSuccessSignal();
+   void uploadProgressSignal(int uploaded, int total);
+   void uploadErrorSignal(int errorCode, const QString &errorString);
 protected:
    QString m_filename;
    QString m_baseDir;

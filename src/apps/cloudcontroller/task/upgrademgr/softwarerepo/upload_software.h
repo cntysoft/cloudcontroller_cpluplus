@@ -21,6 +21,11 @@ class UploadSoftware : public AbstractNetTask
 public:
    UploadSoftware(AbstractTaskContainer* taskContainer, const TaskMeta& meta);
    virtual void run();
+protected slots:
+   void startUploadHandler();
+   void uploadErrorHandler(int errorCode, const QString &errorString);
+protected:
+   QString m_filename;
 };
 
 }//softwarerepo

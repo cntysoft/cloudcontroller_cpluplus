@@ -7,6 +7,7 @@
 #include <QChar>
 #include <QThread>
 #include <QTextStream>
+#include <QDebug>
 
 #include <iostream>
 #include <sys/select.h>
@@ -190,7 +191,7 @@ LABEL_AGAIN:
          ::exit(Application::instance()->getCatchedSignalNumber());
       }
    }
-   LABEL_SKIP_CURRENT_INPUT:
+LABEL_SKIP_CURRENT_INPUT:
    for(int fd = 0; fd < nfds; fd++){
       if(FD_ISSET(fd, &readFds)){
          read(STDIN_FILENO, &buf, 127);
@@ -201,6 +202,8 @@ LABEL_AGAIN:
             SpecialKeyName keyType = getKeyTypeName(unit);
             readUnitCycle(unit, keyType);
             if(keyType == SpecialKeyName::ASCII_CODE && unit == "\n"){
+               History* history = m_historyPool[m_currentTaskContainer->getName()];
+               history->resetPointer();
                command = m_cmdBuff.trimmed();
                m_cmdBuff.clear();
                m_insertPos = 0;
@@ -217,6 +220,8 @@ LABEL_AGAIN:
             SpecialKeyName keyType = getKeyTypeName(unit);
             readUnitCycle(unit, keyType);
             if(keyType == SpecialKeyName::ASCII_CODE && unit == "\n"){
+               History* history = m_historyPool[m_currentTaskContainer->getName()];
+               history->resetPointer();
                command = m_cmdBuff.trimmed();
                m_cmdBuff.clear();
                m_insertPos = 0;
@@ -303,29 +308,16 @@ void AbstractTaskLoop::readUnitCycle(QString &unit, SpecialKeyName keyType)
 
 void AbstractTaskLoop::historyCommand(QString &, SpecialKeyName keyType)
 {
-   
    History* history = m_historyPool[m_currentTaskContainer->getName()];
    QString command;
    if(keyType == SpecialKeyName::ARROW_UP){
       command = history->prev();
-      m_history_nav_flag = 0;
    }else if(keyType == SpecialKeyName::ARROW_DOWN){
       command = history->next();
    }
    command.remove('\n');
-   if(SpecialKeyName::ARROW_DOWN == keyType && history->isLast()){
-      if(m_history_nav_flag < 1){
-         m_cmdBuff = command;
-         m_insertPos = command.size();
-         m_history_nav_flag++;
-      }else{
-         m_cmdBuff.clear();
-         m_insertPos = 0;
-      }
-   }else if(!command.isEmpty()){
-      m_cmdBuff = command;
-      m_insertPos = command.size();
-   }
+   m_cmdBuff = command;
+   m_insertPos = command.size();
    refreshLine(0);
 }
 

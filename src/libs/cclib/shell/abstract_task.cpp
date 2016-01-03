@@ -21,11 +21,31 @@ AbstractTask::AbstractTask(AbstractTaskContainer* taskContainer, const TaskMeta&
 {
 }
 
-void AbstractTask::writeSubMsg(const QString& msg, TerminalColor color, bool underline, bool blink) const
+void AbstractTask::writeSubMsg(const QString& msg, TerminalColor color, bool underline, bool blink)
 {
-   Terminal::writeText(" >", TerminalColor::Green);
+   if(m_replaceWriteMode){
+      if(!m_replaceWriteBegin){
+         Terminal::clearCurrentLine();
+      }else{
+         m_replaceWriteBegin = false;
+      }
+   }
+   Terminal::writeText("> ", TerminalColor::Green);
    Terminal::writeText(msg.toLocal8Bit(), color, underline, blink);
 }
+
+void AbstractTask::beginReplaceMode()
+{
+   m_replaceWriteMode = true;
+   m_replaceWriteBegin = true;
+}
+
+void AbstractTask::endReplaceMode()
+{
+   m_replaceWriteMode = false;
+   m_replaceWriteBegin = false;
+}
+
 
 AbstractTaskContainer* AbstractTask::getTaskContainer()
 {

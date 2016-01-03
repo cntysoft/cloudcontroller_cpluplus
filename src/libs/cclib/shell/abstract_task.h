@@ -30,12 +30,16 @@ public:
    virtual void run() = 0;
    virtual ~AbstractTask();
 protected:
-   void writeSubMsg(const QString &msg, TerminalColor color = TerminalColor::Default, bool underline = false, bool blink = false) const;
+   void writeSubMsg(const QString &msg, TerminalColor color = TerminalColor::Default, bool underline = false, bool blink = false);
    void exitTaskThread(int exitCode);
+   void beginReplaceMode();
+   void endReplaceMode();
 protected:
    AbstractTaskContainer* m_taskContainer;
    const TaskMeta& m_invokeMeta;
    Application& m_app;
+   bool m_replaceWriteMode = false;
+   bool m_replaceWriteBegin = false;
 };
 
 }//shell

@@ -9,8 +9,10 @@
 #include "shell/abstract_task_container.h"
 #include "shell/task_runner_worker.h"
 
+
 #include "corelib/io/filesystem.h"
 #include "corelib/kernel/errorinfo.h"
+#include "corelib/io/terminal.h"
 
 #include "task/common/uploader.h"
 
@@ -24,6 +26,7 @@ using sn::corelib::network::ApiInvokeResponse;
 using sn::corelib::network::ApiInvoker;
 using sn::corelib::Filesystem;
 using sn::corelib::ErrorInfo;
+using sn::corelib::TerminalColor;
 using cloudcontroller::task::common::Uploader;
 using cclib::shell::TaskRunnerWorker;
 
@@ -39,11 +42,25 @@ void UploadSoftware::run()
    if(!Filesystem::fileExist(filename)){
       throw ErrorInfo(QString("指定文件：%1不存在").arg(filename).toLocal8Bit());
    }
+   m_filename = filename;
    Uploader uploader(m_taskContainer, m_invokeMeta);
    uploader.setApiInvoker(getApiInvoker());
    uploader.setFilename(filename);
    //设置相关的事件绑定
+   connect(&uploader, &Uploader::beginUploadSignal, this, &UploadSoftware::startUploadHandler);
+   connect(&uploader, &Uploader::uploadErrorSignal, this, &UploadSoftware::uploadErrorHandler, Qt::DirectConnection);
    uploader.run();
+   writeSubMsg("xiuxiuxi");
+}
+
+void UploadSoftware::startUploadHandler()
+{
+   writeSubMsg(QString("开始上传文件 : %1\n").arg(m_filename));
+}
+
+void UploadSoftware::uploadErrorHandler(int, const QString &errorString)
+{
+   writeSubMsg(QString("上传文件错误 : %1\n").arg(errorString), TerminalColor::Red);
 }
 
 }//softwarerepo
