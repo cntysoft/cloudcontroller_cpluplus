@@ -2,6 +2,7 @@
 #include <QFileInfo>
 #include <QSharedPointer>
 #include <QPair>
+#include <QMap>
 #include <QFile>
 #include <QByteArray>
 #include <QCryptographicHash>
@@ -21,7 +22,10 @@ namespace common{
 using sn::corelib::network::ApiInvoker;
 
 Uploader::Uploader(AbstractTaskContainer *taskContainer, const TaskMeta &meta)
-   : AbstractNetTask(taskContainer, meta)
+   : AbstractNetTask(taskContainer, meta),
+     m_uploaded(0),
+     m_totalToBeUpload(0),
+     m_cycleSize(20)
 {
 }
 
@@ -36,6 +40,22 @@ void init_upload_handler(const ApiInvokeResponse &response, void* args)
    }
    emit self->beginUploadSignal();
    self->startUploadProcess();
+}
+
+void upload_cycle_handler(const ApiInvokeResponse &response, void* args)
+{
+   Uploader *self = static_cast<Uploader*>(args);
+   //元信息已经接收,开始上传进程
+   if(!response.getStatus()){
+      QPair<int, QString> error = response.getError();
+      self->clearContext();
+      self->emitUploadErrorSignal(error.first, error.second);
+      return;
+   }
+   QMap<QString, QVariant> data = response.getData();
+   if(data.contains("cycleComplete") && data.value("cycleComplete").toBool() == true){
+      self->uploadCycle();
+   }
 }
 
 void Uploader::emitUploadErrorSignal(int errorCode, const QString errorString)
@@ -58,31 +78,55 @@ void Uploader::run()
    QByteArray md5(QCryptographicHash::hash(fileContent, QCryptographicHash::Md5).toHex());
    QSharedPointer<ApiInvoker>& apiInvoker = getApiInvoker();
    ApiInvokeRequest request("Common/Uploader", "init", {
-                               QVariant(m_baseDir),QVariant(m_filename),QVariant(QString(md5)), QVariant(m_totalToBeUpload)
+                               QVariant(m_baseDir),QVariant(m_filename),QVariant(QString(md5)), QVariant(m_totalToBeUpload), QVariant(m_cycleSize)
                             });
    
    apiInvoker->request(request, init_upload_handler, (void*)this);
+   m_eventLoop.exec();
 }
 
 void Uploader::clearContext()
 {
    m_uploaded = 0;
    m_filename.clear();
+   m_uploadFile.close();
 }
 
 void Uploader::startUploadProcess()
 {
+   
+   m_uploadFile.setFileName(m_filename);
+   m_uploadFile.open(QIODevice::ReadOnly);
+   uploadCycle();
+   //   while(!file.atEnd()){
+   //      QByteArray unit = file.read(1024);
+   //      ApiInvokeRequest request("Common/Uploader", "receiveData");
+   //      request.setExtraData(unit.toBase64());
+   //      apiInvoker->request(request);
+   //      m_uploaded += unit.size();
+   //      emit uploadProgressSignal(m_uploaded, m_totalToBeUpload);
+   //   }
+}
+
+void Uploader::uploadCycle()
+{
    QSharedPointer<ApiInvoker>& apiInvoker = getApiInvoker();
-   QFile file(m_filename);
-   file.open(QIODevice::ReadOnly);
-   while(!file.atEnd()){
-      QByteArray unit = file.read(1024);
-      ApiInvokeRequest request("Common/Uploader", "receiveData");
-      request.setExtraData(unit.toBase64());
-      apiInvoker->request(request);
-      m_uploaded += unit.size();
-      emit uploadProgressSignal(m_uploaded, m_totalToBeUpload);
+   for(int i = 0; i < m_cycleSize; i++){
+      if(!m_uploadFile.atEnd()){
+         QByteArray unit = m_uploadFile.read(1024);
+         ApiInvokeRequest request("Common/Uploader", "receiveData");
+         request.setExtraData(unit.toBase64());
+         apiInvoker->request(request, upload_cycle_handler, (void*)this);
+         m_uploaded += unit.size();
+         emit uploadProgressSignal(m_uploaded, m_totalToBeUpload);
+      }
    }
+}
+
+Uploader& Uploader::setCycleSize(int cycleSize)
+{
+   m_cycleSize = cycleSize;
+   return *this;
 }
 
 Uploader& Uploader::setFilename(const QString &filename)

@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QObject>
+#include <QEventLoop>
 
 #include "corelib/io/terminal.h"
 #include "corelib/kernel/application.h"
@@ -26,6 +27,7 @@ class CC_LIB_EXPORT AbstractTask : public QObject
 public:
    AbstractTask(AbstractTaskContainer* taskContainer, const TaskMeta& meta);
    AbstractTaskContainer* getTaskContainer();
+   QEventLoop& getEventLoop();
 public:
    virtual void run() = 0;
    virtual ~AbstractTask();
@@ -41,6 +43,7 @@ protected:
    Application& m_app;
    bool m_replaceWriteMode = false;
    bool m_replaceWriteBegin = false;
+   QEventLoop m_eventLoop;
 };
 
 }//shell

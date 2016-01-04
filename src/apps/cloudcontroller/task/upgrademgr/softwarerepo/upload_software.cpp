@@ -52,8 +52,6 @@ void UploadSoftware::run()
    connect(&uploader, &Uploader::uploadErrorSignal, this, &UploadSoftware::uploadErrorHandler, Qt::DirectConnection);
    connect(&uploader, &Uploader::uploadProgressSignal, this, &UploadSoftware::uploadProcessHandler, Qt::DirectConnection);
    uploader.run();
-   QEventLoop loop;
-   loop.exec();
 }
 
 void UploadSoftware::prepareUploadHandler()

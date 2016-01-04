@@ -51,6 +51,11 @@ void AbstractTask::enterCommandLoop()
    m_taskContainer->enterCommandLoop();
 }
 
+QEventLoop& AbstractTask::getEventLoop()
+{
+   return m_eventLoop;
+}
+
 AbstractTaskContainer* AbstractTask::getTaskContainer()
 {
    return m_taskContainer;
