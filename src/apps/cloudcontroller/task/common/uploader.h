@@ -37,13 +37,13 @@ signals:
    void prepareSignal();
    void beginUploadSignal();
    void uploadSuccessSignal();
-   void uploadProgressSignal(int uploaded, int total);
+   void uploadProgressSignal(quint64 uploaded, quint64 total);
    void uploadErrorSignal(int errorCode, const QString &errorString);
 protected:
    QString m_filename;
    QString m_baseDir;
-   int m_uploaded;
-   int m_totalToBeUpload;
+   quint64 m_uploaded = 0;
+   quint64 m_totalToBeUpload = 0;
 };
 
 }//common

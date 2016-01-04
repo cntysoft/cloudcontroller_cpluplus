@@ -12,6 +12,7 @@
 #include "cclib/shell/task_meta.h"
 #include "corelib/network/rpc/invoke_meta.h"
 #include "cclib/shell/abstract_net_task.h"
+#include <iostream>
 
 namespace cloudcontroller{
 namespace task{
@@ -61,7 +62,6 @@ void Uploader::run()
                             });
    
    apiInvoker->request(request, init_upload_handler, (void*)this);
-   waitForResponse(request);
 }
 
 void Uploader::clearContext()
@@ -75,28 +75,14 @@ void Uploader::startUploadProcess()
    QSharedPointer<ApiInvoker>& apiInvoker = getApiInvoker();
    QFile file(m_filename);
    file.open(QIODevice::ReadOnly);
-   ApiInvokeRequest request("Common/Uploader", "receiveData");
-//      request.setExtraData(unit);
-   apiInvoker->request(request);
-//   waitForResponse(request);
-    apiInvoker->request(request);
-//   waitForResponse(request);
-     apiInvoker->request(request);
-//     waitForResponse(request);
+   while(!file.atEnd()){
+      QByteArray unit = file.read(1024);
+      ApiInvokeRequest request("Common/Uploader", "receiveData");
+      request.setExtraData(unit.toBase64());
       apiInvoker->request(request);
-//   int i = 0;
-//   while(!file.atEnd()){
-//      QByteArray unit = file.read(2048);
-//      i++;
-//      qDebug() << i;
-//      //qDebug() << unit;
-//      ApiInvokeRequest request("Common/Uploader", "receiveData");
-////      request.setExtraData(unit);
-//      apiInvoker->request(request);
-//      QThread::msleep(1000);
-////      m_uploaded += qMin(1024, unit.size());
-////      emit uploadProgressSignal(m_uploaded, m_totalToBeUpload);
-//   }
+      m_uploaded += unit.size();
+      emit uploadProgressSignal(m_uploaded, m_totalToBeUpload);
+   }
 }
 
 Uploader& Uploader::setFilename(const QString &filename)

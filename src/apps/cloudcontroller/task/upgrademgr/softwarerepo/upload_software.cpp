@@ -37,20 +37,23 @@ UploadSoftware::UploadSoftware(AbstractTaskContainer *taskContainer, const cclib
 
 void UploadSoftware::run()
 {
-//   QMap<QString, QString> args = m_invokeMeta.getTaskArgs();
-//   QString filename = args.value("file");
-//   if(!Filesystem::fileExist(filename)){
-//      throw ErrorInfo(QString("指定文件：%1不存在").arg(filename).toLocal8Bit());
-//   }
-//   m_filename = filename;
-//   Uploader uploader(m_taskContainer, m_invokeMeta);
-//   uploader.setApiInvoker(getApiInvoker());
-//   uploader.setFilename(filename);
-//   //设置相关的事件绑定
-//   connect(&uploader, &Uploader::prepareSignal, this, &UploadSoftware::prepareUploadHandler);
-//   connect(&uploader, &Uploader::beginUploadSignal, this, &UploadSoftware::startUploadHandler, Qt::DirectConnection);
-//   connect(&uploader, &Uploader::uploadErrorSignal, this, &UploadSoftware::uploadErrorHandler, Qt::DirectConnection);
-//   uploader.run();
+   QMap<QString, QString> args = m_invokeMeta.getTaskArgs();
+   QString filename = args.value("file");
+   if(!Filesystem::fileExist(filename)){
+      throw ErrorInfo(QString("指定文件：%1不存在").arg(filename).toLocal8Bit());
+   }
+   m_filename = filename;
+   Uploader uploader(m_taskContainer, m_invokeMeta);
+   uploader.setApiInvoker(getApiInvoker());
+   uploader.setFilename(filename);
+   //设置相关的事件绑定
+   connect(&uploader, &Uploader::prepareSignal, this, &UploadSoftware::prepareUploadHandler);
+   connect(&uploader, &Uploader::beginUploadSignal, this, &UploadSoftware::startUploadHandler, Qt::DirectConnection);
+   connect(&uploader, &Uploader::uploadErrorSignal, this, &UploadSoftware::uploadErrorHandler, Qt::DirectConnection);
+   connect(&uploader, &Uploader::uploadProgressSignal, this, &UploadSoftware::uploadProcessHandler, Qt::DirectConnection);
+   uploader.run();
+   QEventLoop loop;
+   loop.exec();
 }
 
 void UploadSoftware::prepareUploadHandler()
@@ -61,6 +64,12 @@ void UploadSoftware::prepareUploadHandler()
 void UploadSoftware::startUploadHandler()
 {
    writeSubMsg(QString("开始上传文件 : %1\n").arg(m_filename));
+   beginReplaceMode();
+}
+
+void UploadSoftware::uploadProcessHandler(quint64 uploaded, quint64 total)
+{
+   writeSubMsg(QString("上传进度 : %1%\n").arg(100 * ((float)uploaded / (float)total)));
 }
 
 void UploadSoftware::uploadErrorHandler(int, const QString &errorString)

@@ -24,6 +24,7 @@ public:
 protected slots:
    void prepareUploadHandler();
    void startUploadHandler();
+   void uploadProcessHandler(quint64 uploaded, quint64 total);
    void uploadErrorHandler(int errorCode, const QString &errorString);
 protected:
    QString m_filename;
