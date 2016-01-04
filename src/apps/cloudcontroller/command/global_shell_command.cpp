@@ -4,11 +4,13 @@
 #include "global_shell_command.h"
 #include "shell/task_loop.h"
 #include "io/terminal.h"
+#include "corelib/kernel/application.h"
 
 namespace cloudcontroller{
 namespace command{
 
 using sn::corelib::Terminal;
+using sn::corelib::Application;
 
 static TaskLoop* taskloop_pointer(TaskLoop* pointer = nullptr)
 {
@@ -39,7 +41,13 @@ GlobalShellCommand::GlobalShellCommand(CommandRunner &runner, const CommandMeta 
 void GlobalShellCommand::exec()
 {
    m_taskLoop.run();
-   exit(EXIT_SUCCESS);
+   int sig = Application::instance()->getCatchedSignalNumber();
+   if(SIGINT == sig || SIGUSR1 == sig){
+      exit(sig);
+   }else{
+      exit(EXIT_SUCCESS);
+   }
+   
 }
 
 GlobalShellCommand::~GlobalShellCommand()

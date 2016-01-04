@@ -191,8 +191,7 @@ LABEL_AGAIN:
          throw ErrorInfo("select error");
       }else{
          exitRequest();
-         Application::instance()->exit(Application::instance()->getCatchedSignalNumber());
-         return true;
+         return false;
       }
    }
    for(int fd = 0; fd < nfds; fd++){
