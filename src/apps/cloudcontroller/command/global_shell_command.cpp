@@ -1,5 +1,6 @@
 #include <signal.h>
 
+#include <QDebug>
 #include "global_shell_command.h"
 #include "shell/task_loop.h"
 #include "io/terminal.h"

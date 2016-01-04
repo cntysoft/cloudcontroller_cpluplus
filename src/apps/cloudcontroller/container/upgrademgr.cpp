@@ -1,6 +1,8 @@
 #include <QString>
 #include <QDebug>
 #include <QThread>
+#include <signal.h>
+#include <unistd.h>
 
 #include "const.h"
 #include "corelib/io/terminal.h"
@@ -97,28 +99,27 @@ bool UpgradeMgr::dispatchBuildInTask(const TaskMeta& meta)
 
 void UpgradeMgr::loadHandler(const QMap<QString, QString> &invokeArgs)
 {
+   
    m_invokeArgs = invokeArgs;
    QSharedPointer<ApiInvoker>& invoker = getApiInvoker();
    writeSubMsg("正在连接服务器 ... ");
-   m_activeDisconnected = false;
+   m_activeDisconnected = true;
    invoker->connectToServer();
-   while(!m_connectedMark){
+   while(!m_connectedWaitMark){
       QThread::usleep(100);
    }
-   m_connectedMark = false;
+   m_connectedWaitMark = false;
 }
 
 void UpgradeMgr::unloadHandler()
 {
-   if(m_activeDisconnected){
+   
+   if(m_needWriteDisconnectMsg){
       writeSubMsg("正在断开连接 ... ");
    }
    QSharedPointer<ApiInvoker>& invoker = getApiInvoker();
    invoker->disconnectFromServer();
-   while(!m_disconnectedMark){
-      QThread::usleep(100);
-   }
-   m_disconnectedMark = false;
+   AbstractTaskContainer::unloadHandler();
 }
 
 bool UpgradeMgr::isTcpConnectionValid()
@@ -158,22 +159,22 @@ QSharedPointer<ApiInvoker>& UpgradeMgr::getApiInvoker()
       m_apiInvoker.reset(new ApiInvoker(host, port));
       connect(m_apiInvoker.data(), &ApiInvoker::connectedToServerSignal, this, [&, host, port](){
          writeSubMsg(QString("连接服务器成功 [%1:%2]").arg(host).arg(port));
-         m_connectedMark = true;
+         m_connectedWaitMark = true;
          AbstractTaskContainer::loadHandler(m_invokeArgs);
       }, Qt::DirectConnection);
       connect(m_apiInvoker.data(), &ApiInvoker::connectErrorSignal, this, [&, host, port](ApiInvoker::ErrorType, const QString&){
          writeSubMsg(QString("连接服务器失败 [%1:%2]").arg(host).arg(port));
-         m_connectedMark = true;
-         m_disconnectedMark = true;
+         m_connectedWaitMark = true;
+         m_needWriteDisconnectMsg = false;
          exitCurrentCommandCycle();
       }, Qt::DirectConnection);
       connect(m_apiInvoker.data(), &ApiInvoker::serverOfflineSignal, this, [&](){
-         m_disconnectedMark = true;
-         if(!m_activeDisconnected){
-            Terminal::writeText("\n");
-            writeSubMsg(QString("服务器终止连接"));
-            exitCurrentCommandCycle();
-         }
+         m_activeDisconnected = false;
+         m_connectedWaitMark = true;
+         Terminal::writeText("\n");
+         writeSubMsg(QString("服务器终止连接"));
+         m_taskLoop.exitRequest();
+         kill(getpid(), SIGUSR1);
       }, Qt::DirectConnection);
    }
    return m_apiInvoker;

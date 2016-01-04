@@ -48,9 +48,9 @@ protected:
    QSharedPointer<ApiInvoker> m_apiInvoker;
    QSharedPointer<QTcpSocket> m_client;
    QMap<QString, QString> m_invokeArgs;
-   bool m_connectedMark = false;
-   bool m_disconnectedMark = false;
+   bool m_connectedWaitMark = false;
    bool m_activeDisconnected = false;
+   bool m_needWriteDisconnectMsg = true;
 };
 
 

@@ -34,6 +34,7 @@ protected:
    void exitTaskThread(int exitCode);
    void beginReplaceMode();
    void endReplaceMode();
+   void enterCommandLoop();
 protected:
    AbstractTaskContainer* m_taskContainer;
    const TaskMeta& m_invokeMeta;

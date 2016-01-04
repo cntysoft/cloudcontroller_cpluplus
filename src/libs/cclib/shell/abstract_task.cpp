@@ -46,16 +46,14 @@ void AbstractTask::endReplaceMode()
    m_replaceWriteBegin = false;
 }
 
+void AbstractTask::enterCommandLoop()
+{
+   m_taskContainer->enterCommandLoop();
+}
 
 AbstractTaskContainer* AbstractTask::getTaskContainer()
 {
    return m_taskContainer;
-}
-
-void AbstractTask::exitTaskThread(int exitCode)
-{
-   QThread& taskRunnerThread = m_taskContainer->getTaskRunnerThread();
-   taskRunnerThread.exit(exitCode);
 }
 
 AbstractTask::~AbstractTask()

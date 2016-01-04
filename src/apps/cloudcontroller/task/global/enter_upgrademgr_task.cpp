@@ -28,7 +28,6 @@ EnterUpgradeMgrTask::EnterUpgradeMgrTask(AbstractTaskContainer* taskContainer, c
 void EnterUpgradeMgrTask::run()
 {
    m_taskContainer->getTaskLoop().enterTaskContainer("UpgradeMgr", m_invokeMeta.getTaskArgs());
-   exitTaskThread(0);
 }
 
 }//global

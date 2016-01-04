@@ -45,6 +45,7 @@ public:
 public:
    AbstractTaskLoop();
    void run();
+   void enterCommandLoop();
    void runCommand(const QString& command);
    void updateTerminalWindowSize(int width, int height);
    AbstractTaskContainer& getCurrentTaskContainer();
@@ -63,7 +64,7 @@ protected:
    virtual bool isNeedRestartSelectCall();
 protected:
    void setupTerminalAttr();
-   void readCommand(QString& command);
+   bool readCommand(QString& command);
    void readUnitCycle(QString& unit, SpecialKeyName keyType);
    SpecialKeyName getKeyTypeName(QString& unit);
 protected:

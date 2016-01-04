@@ -105,7 +105,7 @@ AbstractTaskContainer* AbstractTaskLoop::getTaskContainer(const QString &name)
    }
 }
 
-AbstractTaskLoop& AbstractTaskLoop::enterTaskContainer(const QString& name, const QMap<QString, QString>& args)
+AbstractTaskLoop& AbstractTaskLoop::enterTaskContainer(const QString& name, const QMap<QString, QString>&)
 {
    if(m_currentTaskContainer == nullptr || 
          (m_currentTaskContainer->getName() == "Global" && name != "Global")||
@@ -128,20 +128,23 @@ AbstractTaskLoop& AbstractTaskLoop::enterTaskContainer(const QString& name, cons
 void AbstractTaskLoop::run()
 {
    initCommandContainer();
-   QString command;
    Terminal::writeText("welcome to use cloud controller system\n", TerminalColor::Cyan);
    enterGlobalTaskContainer();
-   while(true){
+   enterCommandLoop();
+}
+
+void AbstractTaskLoop::enterCommandLoop()
+{
+   if(!isExitRequest()){
+      QString command;
       Terminal::writeText(m_ps.toLocal8Bit(), TerminalColor::LightBlue);
       saveCycleBeginCursorPos();
-      readCommand(command);
-      History* history = m_historyPool[m_currentTaskContainer->getName()];
-      if(!command.isEmpty()){
-         history->addItem(command);
-      }
-      runCommand(command);
-      if(isExitRequest()){
-         break;
+      if(readCommand(command)){
+         History* history = m_historyPool[m_currentTaskContainer->getName()];
+         if(!command.isEmpty()){
+            history->addItem(command);
+         }
+         runCommand(command);
       }
    }
 }
@@ -150,8 +153,10 @@ void AbstractTaskLoop::runCommand(const QString &command)
 {
    try{
       m_currentTaskContainer->run(command);
+      enterCommandLoop();
    }catch(ErrorInfo errorInfo){
       Terminal::writeText(errorInfo.toString().toLocal8Bit(), TerminalColor::Red);
+      enterCommandLoop();
    }
 }
 
@@ -163,35 +168,33 @@ void AbstractTaskLoop::updateTerminalWindowSize(int width, int height)
    refreshLine(0);
 }
 
-void AbstractTaskLoop::readCommand(QString &command)
+bool AbstractTaskLoop::readCommand(QString &command)
 {
    fd_set readFds;
    char buf[128];
    memset(buf, ASCII_NUL, 128);
    int nfds = 1;
-   int catchedSigNum = -1;
    FD_ZERO(&readFds);
    FD_SET(STDIN_FILENO, &readFds);
+   int catchedSigNum = -1;
 LABEL_AGAIN:
    int ret = select(nfds, &readFds, NULL, NULL, NULL);
    if(-1 == ret){
       if(errno == EINTR && isNeedRestartSelectCall()){
          catchedSigNum = Application::instance()->getCatchedSignalNumber();
          if(SIGUSR1 == catchedSigNum){
-            nfds = 1;
-            strcpy(buf, "\n");
-            FD_ZERO(&readFds);
-            goto LABEL_SKIP_CURRENT_INPUT;
+            return false;
          }
          goto LABEL_AGAIN;
       }
       if(errno != EINTR){
          throw ErrorInfo("select error");
       }else{
-         ::exit(Application::instance()->getCatchedSignalNumber());
+         exitRequest();
+         Application::instance()->exit(Application::instance()->getCatchedSignalNumber());
+         return true;
       }
    }
-LABEL_SKIP_CURRENT_INPUT:
    for(int fd = 0; fd < nfds; fd++){
       if(FD_ISSET(fd, &readFds)){
          read(STDIN_FILENO, &buf, 127);
@@ -208,30 +211,13 @@ LABEL_SKIP_CURRENT_INPUT:
                m_cmdBuff.clear();
                m_insertPos = 0;
                std::cout << "\n";
-               return;
+               return true;
             }
          }
-         goto LABEL_AGAIN;
-      }else if(catchedSigNum == SIGUSR1){
-         QString unit;
-         filterBuffer(buf, unit);
-         memset(buf, ASCII_NUL, 128);
-         if(!unit.isEmpty()){
-            SpecialKeyName keyType = getKeyTypeName(unit);
-            readUnitCycle(unit, keyType);
-            if(keyType == SpecialKeyName::ASCII_CODE && unit == "\n"){
-               History* history = m_historyPool[m_currentTaskContainer->getName()];
-               history->resetPointer();
-               command = m_cmdBuff.trimmed();
-               m_cmdBuff.clear();
-               m_insertPos = 0;
-               return;
-            }
-         }
-         catchedSigNum = -1;
          goto LABEL_AGAIN;
       }
    }
+   return true;
 }
 
 bool AbstractTaskLoop::isNeedRestartSelectCall()
@@ -523,6 +509,9 @@ AbstractTaskLoop::~AbstractTaskLoop()
    tcsetattr(STDIN_FILENO, TCSANOW, &m_savedTerminalAttr);
    QMap<QString, AbstractTaskContainer*>::iterator it = m_taskContainerPool.begin();
    while(it != m_taskContainerPool.end()){
+      if(it.value()->isActived()){
+         it.value()->unloadHandler();
+      }
       delete it.value();
       it++;
    }

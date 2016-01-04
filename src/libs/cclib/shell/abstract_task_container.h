@@ -42,13 +42,16 @@ public:
    void writeSubMsg(const QString& msg);
    QThread& getTaskRunnerThread();
    void exitCurrentCommandCycle();
+   void enterCommandLoop();
+   void exit(int exitCode = 0);
+   bool isActived();
+   bool isNeedRunUnloadHandler();
 public:
    virtual void runTask(const TaskMeta& meta);
    virtual void loadHandler(const QMap<QString, QString>& invokeArgs = QMap<QString, QString>());
    virtual void unloadHandler();
    virtual ~AbstractTaskContainer();
 protected:
-   void exitTaskThread(int exitCode);
    void addUsageText(const QString& text, TerminalColor color = TerminalColor::Default);
    void addTaskRoute(const QString& name, const QString& route, int priority = 1, const QMap<QString, QString>& defaultParams = QMap<QString, QString>());
 signals:
@@ -62,7 +65,7 @@ protected:
    QString m_containerPs;
    QString m_psBackup;
    Application& m_app;
-   QThread m_taskRunnerThread;
+   bool m_isActived = false;
 };
 
 }//shell

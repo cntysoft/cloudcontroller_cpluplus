@@ -37,20 +37,25 @@ UploadSoftware::UploadSoftware(AbstractTaskContainer *taskContainer, const cclib
 
 void UploadSoftware::run()
 {
-   QMap<QString, QString> args = m_invokeMeta.getTaskArgs();
-   QString filename = args.value("file");
-   if(!Filesystem::fileExist(filename)){
-      throw ErrorInfo(QString("指定文件：%1不存在").arg(filename).toLocal8Bit());
-   }
-   m_filename = filename;
-   Uploader uploader(m_taskContainer, m_invokeMeta);
-   uploader.setApiInvoker(getApiInvoker());
-   uploader.setFilename(filename);
-   //设置相关的事件绑定
-   connect(&uploader, &Uploader::beginUploadSignal, this, &UploadSoftware::startUploadHandler);
-   connect(&uploader, &Uploader::uploadErrorSignal, this, &UploadSoftware::uploadErrorHandler, Qt::DirectConnection);
-   uploader.run();
-   writeSubMsg("xiuxiuxi");
+//   QMap<QString, QString> args = m_invokeMeta.getTaskArgs();
+//   QString filename = args.value("file");
+//   if(!Filesystem::fileExist(filename)){
+//      throw ErrorInfo(QString("指定文件：%1不存在").arg(filename).toLocal8Bit());
+//   }
+//   m_filename = filename;
+//   Uploader uploader(m_taskContainer, m_invokeMeta);
+//   uploader.setApiInvoker(getApiInvoker());
+//   uploader.setFilename(filename);
+//   //设置相关的事件绑定
+//   connect(&uploader, &Uploader::prepareSignal, this, &UploadSoftware::prepareUploadHandler);
+//   connect(&uploader, &Uploader::beginUploadSignal, this, &UploadSoftware::startUploadHandler, Qt::DirectConnection);
+//   connect(&uploader, &Uploader::uploadErrorSignal, this, &UploadSoftware::uploadErrorHandler, Qt::DirectConnection);
+//   uploader.run();
+}
+
+void UploadSoftware::prepareUploadHandler()
+{
+   writeSubMsg(QString("开始计算文件 : %1大小和MD5校验数据\n").arg(m_filename));
 }
 
 void UploadSoftware::startUploadHandler()

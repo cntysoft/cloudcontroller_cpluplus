@@ -28,10 +28,13 @@ public:
    virtual void run();
    virtual ~Uploader();
 protected:
+   void clearContext();
    void startUploadProcess();
 protected:
    void emitUploadErrorSignal(int errorCode, const QString errorString);
+   void emitBeginUploadSignal();
 signals:
+   void prepareSignal();
    void beginUploadSignal();
    void uploadSuccessSignal();
    void uploadProgressSignal(int uploaded, int total);
@@ -39,6 +42,8 @@ signals:
 protected:
    QString m_filename;
    QString m_baseDir;
+   int m_uploaded;
+   int m_totalToBeUpload;
 };
 
 }//common

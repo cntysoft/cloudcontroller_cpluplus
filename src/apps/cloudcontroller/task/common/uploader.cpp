@@ -2,6 +2,10 @@
 #include <QFileInfo>
 #include <QSharedPointer>
 #include <QPair>
+#include <QFile>
+#include <QByteArray>
+#include <QCryptographicHash>
+#include <QDebug>
 
 #include "uploader.h"
 
@@ -29,6 +33,7 @@ void init_upload_handler(const ApiInvokeResponse &response, void* args)
       self->emitUploadErrorSignal(error.first, error.second);
       return;
    }
+   emit self->beginUploadSignal();
    self->startUploadProcess();
 }
 
@@ -39,19 +44,59 @@ void Uploader::emitUploadErrorSignal(int errorCode, const QString errorString)
 
 void Uploader::run()
 {
-   emit beginUploadSignal();
+   emit prepareSignal();
    QFileInfo fileInfo(m_filename);
+   QFile file(m_filename);
+   file.open(QIODevice::ReadOnly);
+   QByteArray fileContent;
+   while(!file.atEnd()){
+      fileContent.append(file.read(2048));
+   }
+   file.close();
+   m_totalToBeUpload = fileInfo.size();
+   QByteArray md5(QCryptographicHash::hash(fileContent, QCryptographicHash::Md5).toHex());
    QSharedPointer<ApiInvoker>& apiInvoker = getApiInvoker();
    ApiInvokeRequest request("Common/Uploader", "init", {
-                               QVariant(m_baseDir),QVariant(m_filename),QVariant(fileInfo.size())
+                               QVariant(m_baseDir),QVariant(m_filename),QVariant(QString(md5)), QVariant(m_totalToBeUpload)
                             });
+   
    apiInvoker->request(request, init_upload_handler, (void*)this);
    waitForResponse(request);
 }
 
+void Uploader::clearContext()
+{
+   m_uploaded = 0;
+   m_filename.clear();
+}
+
 void Uploader::startUploadProcess()
 {
-   
+   QSharedPointer<ApiInvoker>& apiInvoker = getApiInvoker();
+   QFile file(m_filename);
+   file.open(QIODevice::ReadOnly);
+   ApiInvokeRequest request("Common/Uploader", "receiveData");
+//      request.setExtraData(unit);
+   apiInvoker->request(request);
+//   waitForResponse(request);
+    apiInvoker->request(request);
+//   waitForResponse(request);
+     apiInvoker->request(request);
+//     waitForResponse(request);
+      apiInvoker->request(request);
+//   int i = 0;
+//   while(!file.atEnd()){
+//      QByteArray unit = file.read(2048);
+//      i++;
+//      qDebug() << i;
+//      //qDebug() << unit;
+//      ApiInvokeRequest request("Common/Uploader", "receiveData");
+////      request.setExtraData(unit);
+//      apiInvoker->request(request);
+//      QThread::msleep(1000);
+////      m_uploaded += qMin(1024, unit.size());
+////      emit uploadProgressSignal(m_uploaded, m_totalToBeUpload);
+//   }
 }
 
 Uploader& Uploader::setFilename(const QString &filename)
@@ -68,7 +113,7 @@ Uploader& Uploader::setBaseDir(const QString &baseDir)
 
 Uploader::~Uploader()
 {
-   
+   clearContext();
 }
 
 }//common

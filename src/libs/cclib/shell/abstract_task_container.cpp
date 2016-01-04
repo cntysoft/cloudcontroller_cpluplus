@@ -1,8 +1,7 @@
 #include <QRegularExpression>
 #include <QScopedPointer>
 
-#include <signal.h>
-#include <unistd.h>
+
 
 #include "corelib/kernel/errorinfo.h"
 #include "corelib/command/route_item.h"
@@ -41,14 +40,16 @@ AbstractTaskLoop& AbstractTaskContainer::getTaskLoop()
    return m_taskLoop;
 }
 
+bool AbstractTaskContainer::isActived()
+{
+   return m_isActived;
+}
+
 void AbstractTaskContainer::run(const QString& command)
 {
    TaskMeta meta;
    RouteMatchResult routeMatch = m_router.match(command.split(QRegularExpression("\\s+")));
    if(!routeMatch.getStatus()){
-      if(SIGUSR1 == Application::instance()->getCatchedSignalNumber()){
-         throw ErrorInfo();
-      }
       Terminal::writeText("invalid command\n", TerminalColor::Red);
       printUsage();
       throw ErrorInfo();
@@ -68,19 +69,24 @@ void AbstractTaskContainer::run(const QString& command)
    }
 }
 
+void AbstractTaskContainer::enterCommandLoop()
+{
+   m_taskLoop.enterCommandLoop();
+}
+
 void AbstractTaskContainer::exitCurrentCommandCycle()
 {
    if(m_name == "Global"){
       return;
    }
    m_taskLoop.enterGlobalTaskContainer();
-   kill(getpid(), SIGUSR1);
 }
 
-void AbstractTaskContainer::exitTaskThread(int exitCode)
+void AbstractTaskContainer::exit(int exitCode)
 {
-   m_taskRunnerThread.exit(exitCode);
+   m_app.exit(exitCode);
 }
+
 
 void AbstractTaskContainer::runTask(const TaskMeta &meta)
 {
@@ -100,10 +106,6 @@ void AbstractTaskContainer::printUsage()const
    }
 }
 
-QThread& AbstractTaskContainer::getTaskRunnerThread()
-{
-   return m_taskRunnerThread;
-}
 
 void AbstractTaskContainer::addUsageText(const QString& text, TerminalColor color)
 {
@@ -133,6 +135,7 @@ void AbstractTaskContainer::loadHandler(const QMap<QString, QString>&)
       m_psBackup = m_taskLoop.getConsolePsText();
       m_taskLoop.setConsolePsText(m_containerPs);
    }
+   m_isActived = true;
 }
 
 void AbstractTaskContainer::unloadHandler()
@@ -140,6 +143,7 @@ void AbstractTaskContainer::unloadHandler()
    if(!m_containerPs.isEmpty() && !m_psBackup.isEmpty()){
       m_taskLoop.setConsolePsText(m_psBackup);
    }
+   m_isActived = false;
 }
 
 AbstractTaskContainer::~AbstractTaskContainer()

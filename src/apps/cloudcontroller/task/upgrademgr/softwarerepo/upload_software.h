@@ -22,6 +22,7 @@ public:
    UploadSoftware(AbstractTaskContainer* taskContainer, const TaskMeta& meta);
    virtual void run();
 protected slots:
+   void prepareUploadHandler();
    void startUploadHandler();
    void uploadErrorHandler(int errorCode, const QString &errorString);
 protected:
