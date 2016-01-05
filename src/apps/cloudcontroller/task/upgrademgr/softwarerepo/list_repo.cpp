@@ -24,6 +24,7 @@ void ls_software_repo_callback(const ApiInvokeResponse &response, void *args)
    ListRepo *self = (ListRepo*)args;
    if(!response.getStatus()){
       self->processErrorResponse(response);
+      self->getEventLoop().exit();
    }
    QDataStream in(response.getExtraData());
    QStringList files;
@@ -33,6 +34,7 @@ void ls_software_repo_callback(const ApiInvokeResponse &response, void *args)
       std::cout << (*it).toStdString() << std::endl;
       it++;
    }
+   self->getEventLoop().exit();
 }
 
 ListRepo::ListRepo(AbstractTaskContainer *taskContainer, const cclib::shell::TaskMeta &meta)
@@ -45,7 +47,7 @@ void ListRepo::run()
    QSharedPointer<ApiInvoker>& apiInvoker = getApiInvoker();
    ApiInvokeRequest request("Repo/Info", "lsSoftwareRepoDir");
    apiInvoker->request(request, ls_software_repo_callback, (void*)this);
-   waitForResponse(request);
+   m_eventLoop.exec();
 }
 
 }//softwarerepo
