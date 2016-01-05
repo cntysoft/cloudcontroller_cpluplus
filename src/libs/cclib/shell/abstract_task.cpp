@@ -6,7 +6,6 @@
 #include "corelib/io/terminal.h"
 
 #include "shell/abstract_task_container.h"
-#include "task_runner_thread.h"
 
 namespace cclib{
 namespace shell{

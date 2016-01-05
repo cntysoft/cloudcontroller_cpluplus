@@ -23,6 +23,7 @@ class Uploader : public AbstractNetTask
 protected:
    friend void init_upload_handler(const ApiInvokeResponse &response, void* args);
    friend void upload_cycle_handler(const ApiInvokeResponse &response, void* args);
+   friend void check_uploadfile_handler(const ApiInvokeResponse &response, void* args);
 public:
    Uploader(AbstractTaskContainer *taskContainer, const TaskMeta &meta);
    Uploader& setFilename(const QString &filename);
@@ -35,14 +36,18 @@ protected:
    void clearContext();
    void startUploadProcess();
    void uploadCycle();
+   void checkUploadFile();
 protected:
    void emitUploadErrorSignal(int errorCode, const QString errorString);
    void emitBeginUploadSignal();
+   void emitUploadProgressSignal(quint64 uploaded, quint64 total);
+   void emitUploadSuccessSignal();
 signals:
    void prepareSignal();
    void beginUploadSignal();
    void uploadSuccessSignal();
    void uploadProgressSignal(quint64 uploaded, quint64 total);
+   void checkUploadFileSignal();
    void uploadErrorSignal(int errorCode, const QString &errorString);
 protected:
    QString m_filename;

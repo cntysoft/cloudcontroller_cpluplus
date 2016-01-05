@@ -61,8 +61,6 @@ Product
            "abstract_task_loop.h",
            "task_meta.cpp",
            "task_meta.h",
-           "task_runner_thread.cpp",
-           "task_runner_thread.h",
            "task_runner_worker.cpp",
            "task_runner_worker.h",
        ]

@@ -48,9 +48,11 @@ void UploadSoftware::run()
    uploader.setFilename(filename);
    //设置相关的事件绑定
    connect(&uploader, &Uploader::prepareSignal, this, &UploadSoftware::prepareUploadHandler);
-   connect(&uploader, &Uploader::beginUploadSignal, this, &UploadSoftware::startUploadHandler, Qt::DirectConnection);
-   connect(&uploader, &Uploader::uploadErrorSignal, this, &UploadSoftware::uploadErrorHandler, Qt::DirectConnection);
-   connect(&uploader, &Uploader::uploadProgressSignal, this, &UploadSoftware::uploadProcessHandler, Qt::DirectConnection);
+   connect(&uploader, &Uploader::beginUploadSignal, this, &UploadSoftware::startUploadHandler);
+   connect(&uploader, &Uploader::uploadErrorSignal, this, &UploadSoftware::uploadErrorHandler);
+   connect(&uploader, &Uploader::uploadProgressSignal, this, &UploadSoftware::uploadProcessHandler);
+   connect(&uploader, &Uploader::checkUploadFileSignal, this, &UploadSoftware::checkUploadSumHandler);
+   connect(&uploader, &Uploader::uploadSuccessSignal, this, &UploadSoftware::uploadSuccessHandler);
    uploader.run();
 }
 
@@ -68,6 +70,17 @@ void UploadSoftware::startUploadHandler()
 void UploadSoftware::uploadProcessHandler(quint64 uploaded, quint64 total)
 {
    writeSubMsg(QString("上传进度 : %1%\n").arg(100 * ((float)uploaded / (float)total)));
+}
+
+void UploadSoftware::checkUploadSumHandler()
+{
+   beginReplaceMode();
+   writeSubMsg(QString("服务器开始进行MD5数据校验\n"));
+}
+
+void UploadSoftware::uploadSuccessHandler()
+{
+   writeSubMsg(QString("上传成功\n"));
 }
 
 void UploadSoftware::uploadErrorHandler(int, const QString &errorString)
