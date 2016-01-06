@@ -26,7 +26,6 @@ Product
    cpp.visibility: "minimal"
    cpp.cxxLanguageVersion: "c++14"
    cpp.includePaths:[".","../"]
-   version : "0.1.1"
    Export {
       Depends { name: "cpp" }
       Depends { name: "Qt"; submodules: ["core"] }
