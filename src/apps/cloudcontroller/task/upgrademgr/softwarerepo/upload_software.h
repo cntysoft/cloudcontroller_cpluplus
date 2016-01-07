@@ -17,7 +17,7 @@ using cclib::shell::TaskMeta;
 class UploadSoftware : public AbstractNetTask
 {
 public:
-   UploadSoftware(AbstractTaskContainer* taskContainer, const TaskMeta& meta);
+   UploadSoftware(AbstractTaskContainer *taskContainer, const TaskMeta &meta);
    virtual void run();
 protected slots:
    void prepareUploadHandler();

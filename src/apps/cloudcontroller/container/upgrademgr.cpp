@@ -78,6 +78,11 @@ void UpgradeMgr::initRouter()
                    {"category", "Upgrader"},
                    {"name", "UpgradeUpgrademgr"}
                 });
+   addTaskRoute("serverstatusserverversion", "master_server_version", 1, {
+                   {"category", "ServerStatus"},
+                   {"name", "ServerVersion"}
+                });
+   
 }
 
 void UpgradeMgr::initTaskPool()
@@ -92,6 +97,10 @@ void UpgradeMgr::initTaskPool()
    });
    m_taskRegisterPool.insert("UpgradeMgr_Upgrader_UpgradeUpgrademgr", [](AbstractTaskContainer* container, const TaskMeta& meta)->AbstractTask*{
       UpgraderUpgradeUpgrademgr* task = new UpgraderUpgradeUpgrademgr(container, meta);
+      return task;
+   });
+   m_taskRegisterPool.insert("UpgradeMgr_ServerStatus_ServerVersion", [](AbstractTaskContainer* container, const TaskMeta& meta)->AbstractTask*{
+      ServerStatusServerVersion* task = new ServerStatusServerVersion(container, meta);
       return task;
    });
 }
