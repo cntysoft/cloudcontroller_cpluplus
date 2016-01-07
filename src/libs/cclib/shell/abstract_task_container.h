@@ -66,6 +66,7 @@ protected:
    QString m_psBackup;
    Application& m_app;
    bool m_isActived = false;
+   AbstractTask *m_currentTask = nullptr;
 };
 
 }//shell

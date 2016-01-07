@@ -20,8 +20,9 @@ using cloudcontroller::command::GlobalShellCommand;
 CommandRunner::CommandRunner(Application &app)
    : BaseCommandRunner(app)
 {
-   addUsageText("welcome to use sheneninfo metaserver system\n\n", TerminalColor::Green);
+   addUsageText("welcome to use sheneninfo cloudcontroller system\n\n", TerminalColor::Green);
    addUsageText("usage: \n\n", TerminalColor::LightBlue);
+   addUsageText("shell  enter cloudcontroller shell environment\n");
    addUsageText("--version  print main system version number\n");
    addUsageText("--help     print help document\n\n");
    initCommandPool();

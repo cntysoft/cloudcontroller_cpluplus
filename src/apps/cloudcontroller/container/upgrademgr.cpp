@@ -56,6 +56,7 @@ void UpgradeMgr::initUsage()
    addUsageText("you can use commands as fowllow:\n", TerminalColor::LightGreen);
    addUsageText("list_software_repo   查看当前软件仓库里面的软件种类\n");
    addUsageText("upload_software --file=<需要上传的文件路径>   上传指定的软件到软件仓库\n");
+   addUsageText("upgrade_upgrademgr 更新更新管理程序自己\n");
    addUsageText("quit   退出更新管理程序\n");
 }
 
@@ -73,6 +74,10 @@ void UpgradeMgr::initRouter()
                    {"category", "SoftwareRepo"},
                    {"name", "UploadSoftware"}
                 });
+   addTaskRoute("upgraderupgradeupgrademgr", "upgrade_upgrademgr", 1, {
+                   {"category", "Upgrader"},
+                   {"name", "UpgradeUpgrademgr"}
+                });
 }
 
 void UpgradeMgr::initTaskPool()
@@ -83,6 +88,10 @@ void UpgradeMgr::initTaskPool()
    });
    m_taskRegisterPool.insert("UpgradeMgr_SoftwareRepo_UploadSoftware", [](AbstractTaskContainer* container, const TaskMeta& meta)->AbstractTask*{
       SoftwareRepoUploadSoftware* task = new SoftwareRepoUploadSoftware(container, meta);
+      return task;
+   });
+   m_taskRegisterPool.insert("UpgradeMgr_Upgrader_UpgradeUpgrademgr", [](AbstractTaskContainer* container, const TaskMeta& meta)->AbstractTask*{
+      UpgraderUpgradeUpgrademgr* task = new UpgraderUpgradeUpgrademgr(container, meta);
       return task;
    });
 }
@@ -113,7 +122,6 @@ void UpgradeMgr::loadHandler(const QMap<QString, QString> &invokeArgs)
 
 void UpgradeMgr::unloadHandler()
 {
-   
    if(m_needWriteDisconnectMsg){
       writeSubMsg("正在断开连接 ... ");
    }

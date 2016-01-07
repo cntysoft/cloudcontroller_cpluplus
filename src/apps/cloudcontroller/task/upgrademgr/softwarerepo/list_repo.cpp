@@ -51,6 +51,6 @@ void ListRepo::run()
 }
 
 }//softwarerepo
-}//upgrade
+}//upgrademgr
 }//task
 }//cloudcontroller

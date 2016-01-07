@@ -31,6 +31,7 @@ protected:
    void waitForResponse(const ApiInvokeRequest &request);
 protected slots:
    void responseArrivedHandler(const ApiInvokeResponse &response);
+   void serverOfflineHandler();
 protected:
    QSharedPointer<ApiInvoker> m_apiInvoker;
    QPair<int, bool> m_waitPair;

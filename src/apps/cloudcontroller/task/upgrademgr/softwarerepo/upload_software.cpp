@@ -89,6 +89,6 @@ void UploadSoftware::uploadErrorHandler(int, const QString &errorString)
 }
 
 }//softwarerepo
-}//upgrade
+}//upgrademgr
 }//task
 }//cloudcontroller

@@ -13,8 +13,6 @@ namespace softwarerepo{
 using cclib::shell::AbstractNetTask;
 using cclib::shell::AbstractTaskContainer;
 using cclib::shell::TaskMeta;
-using sn::corelib::network::ApiInvokeRequest;
-using sn::corelib::network::ApiInvokeResponse;
 
 class UploadSoftware : public AbstractNetTask
 {
@@ -33,7 +31,7 @@ protected:
 };
 
 }//softwarerepo
-}//upgrade
+}//upgrademgr
 }//task
 }//cloudcontroller
 

@@ -29,6 +29,7 @@ AbstractNetTask& AbstractNetTask::setApiInvoker(QSharedPointer<ApiInvoker> &apiI
 {
    m_apiInvoker = apiInvoker;
    QObject::connect(m_apiInvoker.data(), &ApiInvoker::responseArrived, this, &AbstractNetTask::responseArrivedHandler, Qt::DirectConnection);
+   QObject::connect(m_apiInvoker.data(), &ApiInvoker::serverOfflineSignal, this, &AbstractNetTask::serverOfflineHandler, Qt::DirectConnection);
    return *this;
 }
 
@@ -47,6 +48,13 @@ void AbstractNetTask::responseArrivedHandler(const ApiInvokeResponse &response)
 {
    m_waitPair.first = response.getSerial();
    m_waitPair.second = true;
+}
+
+void AbstractNetTask::serverOfflineHandler()
+{
+   if(m_eventLoop.isRunning()){
+      m_eventLoop.exit();
+   }
 }
 
 AbstractNetTask::~AbstractNetTask()

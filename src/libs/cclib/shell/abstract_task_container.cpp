@@ -94,7 +94,9 @@ void AbstractTaskContainer::runTask(const TaskMeta &meta)
    Q_ASSERT_X(m_taskRegisterPool.contains(key), "AbstractTaskContainer::run()", QString("command : %1 is not exist").arg(key).toLatin1());
    AbstractTask* (*initializer)(AbstractTaskContainer*, const TaskMeta&) = m_taskRegisterPool[key];
    QScopedPointer<AbstractTask> task(initializer(this, meta));
+   m_currentTask = task.data();
    task->run();
+   m_currentTask = nullptr;
 }
 
 void AbstractTaskContainer::printUsage()const
