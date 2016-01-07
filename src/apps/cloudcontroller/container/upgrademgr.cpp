@@ -132,6 +132,9 @@ void UpgradeMgr::loadHandler(const QMap<QString, QString> &invokeArgs)
 void UpgradeMgr::unloadHandler()
 {
    if(m_needWriteDisconnectMsg){
+      if(SIGINT == m_app.getCatchedSignalNumber()){
+         Terminal::writeText("\n");
+      }
       writeSubMsg("正在断开连接 ... ");
    }
    QSharedPointer<ApiInvoker>& invoker = getApiInvoker();
