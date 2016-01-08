@@ -57,6 +57,7 @@ void UpgradeMgr::initUsage()
    addUsageText("list_software_repo   查看当前软件仓库里面的软件种类\n");
    addUsageText("upload_software --file=<需要上传的文件路径>   上传指定的软件到软件仓库\n");
    addUsageText("upgrade_upgrademgr 更新更新管理程序自己\n");
+   addUsageText("master_server_version 获取主更新程序的版本号\n");
    addUsageText("quit   退出更新管理程序\n");
 }
 
@@ -66,6 +67,10 @@ void UpgradeMgr::initRouter()
                    {"category", "UpgradeMgr"},
                    {"name", "Quit"}
                 });
+   addTaskRoute("help", "help", 1, {
+                   {"category", "UpgradeMgr"},
+                   {"name", "Help"}
+                });
    addTaskRoute("softwarerepolistrepo", "list_software_repo", 1, {
                    {"category", "SoftwareRepo"},
                    {"name", "ListRepo"}
@@ -74,7 +79,7 @@ void UpgradeMgr::initRouter()
                    {"category", "SoftwareRepo"},
                    {"name", "UploadSoftware"}
                 });
-   addTaskRoute("upgraderupgradeupgrademgr", "upgrade_upgrademgr", 1, {
+   addTaskRoute("upgraderupgradeupgrademgr", "upgrade_upgrademgr --version=", 1, {
                    {"category", "Upgrader"},
                    {"name", "UpgradeUpgrademgr"}
                 });
@@ -110,6 +115,9 @@ bool UpgradeMgr::dispatchBuildInTask(const TaskMeta& meta)
    QString key(meta.getCategory()+'_'+meta.getName());
    if(key == "UpgradeMgr_Quit"){
       quitTask(meta);
+      return true;
+   }else if(key == "UpgradeMgr_Help"){
+      helpTask(meta);
       return true;
    }
    return false;
@@ -204,6 +212,10 @@ void UpgradeMgr::quitTask(const TaskMeta&)
 {
    m_activeDisconnected = true;
    exitCurrentCommandCycle();
+}
+void UpgradeMgr::helpTask(const TaskMeta&)
+{
+   printUsage();
 }
 
 }//container

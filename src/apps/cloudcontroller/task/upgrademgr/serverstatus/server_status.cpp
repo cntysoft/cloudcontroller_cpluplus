@@ -14,7 +14,7 @@ void get_version_info_callback(const ApiInvokeResponse &response, void *args)
       self->processErrorResponse(response);
       self->getEventLoop().exit();
    }
-   self->writeSubMsg(response.getDataItem("version").toString());
+   self->writeSubMsg(response.getDataItem("version").toString()+"\n");
    self->getEventLoop().exit();
 }
 
@@ -26,7 +26,7 @@ ServerVersion::ServerVersion(AbstractTaskContainer *taskContainer, const TaskMet
 void ServerVersion::run()
 {
    QSharedPointer<ApiInvoker>& apiInvoker = getApiInvoker();
-   ApiInvokeRequest request("ServerStatus/Info", "getVersionInfo1");
+   ApiInvokeRequest request("ServerStatus/Info", "getVersionInfo");
    apiInvoker->request(request, get_version_info_callback, (void*)this);
    m_eventLoop.exec();
 }

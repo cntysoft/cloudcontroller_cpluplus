@@ -58,5 +58,11 @@ const TaskMeta::TaskArgType & TaskMeta::getTaskArgs() const
    return m_args;
 }
 
+const QString& TaskMeta::getTaskArg(const QString &key) const
+{
+   Q_ASSERT_X(m_args.contains(key), "TaskMeta::getTaskArg",  "argument key is not exist");
+   return m_args[key];
+}
+
 }//shell
 }//cclib

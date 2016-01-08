@@ -19,6 +19,7 @@ using sn::corelib::network::ApiInvokeResponse;
 class UpgradeUpgrademgr : public AbstractNetTask
 {
    Q_OBJECT
+   friend void upgrade_upgrademgr_handler(const ApiInvokeResponse &response, void *args);
 public:
    UpgradeUpgrademgr(AbstractTaskContainer *taskContainer, const TaskMeta &meta);
    virtual void run();

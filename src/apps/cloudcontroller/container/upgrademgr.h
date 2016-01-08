@@ -44,6 +44,7 @@ protected:
    void initTaskPool();
 protected:
    void quitTask(const TaskMeta& meta = TaskMeta());
+   void helpTask(const TaskMeta& meta = TaskMeta());
 protected:
    QSharedPointer<ApiInvoker> m_apiInvoker;
    QSharedPointer<QTcpSocket> m_client;

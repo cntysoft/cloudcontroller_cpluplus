@@ -25,6 +25,7 @@ public:
    const QString& getCategory()const;
    const QString& getName()const;
    const TaskArgType& getTaskArgs()const;
+   const QString& getTaskArg(const QString &key)const;
 protected:
    QString m_container;
    QString m_category;
