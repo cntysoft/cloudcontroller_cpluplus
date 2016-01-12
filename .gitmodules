@@ -1,3 +1,6 @@
 [submodule "src/libs/corelib"]
 	path = src/libs/corelib
 	url = cntysoft-server:corelib_cplusplus
+[submodule "src/libs/snoslib"]
+	path = src/libs/snoslib
+	url = cntysoft-server:snoslib_cplusplus
